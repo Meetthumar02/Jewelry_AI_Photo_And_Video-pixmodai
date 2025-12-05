@@ -44,29 +44,31 @@
         <div class="row g-4" id="catalogGrid">
             @forelse ($catalogs as $catalog)
                 @php
-                    $mainImage = optional($catalog->photos->first())->image_path ?? 'no-image.png';
+                    // For ai_photo_shoots records used as catalog items
+                    $mainImage = $catalog->generated_images[0] ?? $catalog->uploaded_image ?? 'no-image.png';
+                    $mainImageUrl = Str::startsWith($mainImage, ['http', '/']) ? $mainImage : asset($mainImage);
                 @endphp
-
 
                 <div class="col-xl-3 col-lg-4 col-md-6">
                     <div class="card h-100 shadow-sm">
-                        <img src="{{ asset('storage/' . $mainImage) }}" class="card-img-top">
+                        <img src="{{ $mainImageUrl }}" class="card-img-top">
 
                         <div class="card-body">
                             <div class="d-flex justify-content-between mb-2">
-                                <h6>{{ ucfirst($catalog->jewelry_type) }}</h6>
-                                <button class="btn-favorite {{ in_array($catalog->id, $favoriteIds) ? 'active' : '' }}"
-                                    data-catalog-id="{{ $catalog->id }}">
+                                <h6>{{ ucfirst($catalog->product_type ?? 'Unknown') }}</h6>
+                                {{-- Favorites disabled until catalog_studios is wired --}}
+                                <button class="btn-favorite disabled" title="Favorites unavailable">
                                     <i class="fas fa-star"></i>
                                 </button>
                             </div>
 
-                            <p class="small text-muted">Metal: {{ $catalog->metal_type }}</p>
+                            <p class="small text-muted">Shoot: {{ ucfirst($catalog->shoot_type ?? 'N/A') }}</p>
 
                             <button class="btn btn-sm btn-gradient openModal w-100"
-                                data-name="{{ $catalog->product_name }}" data-desc="{{ $catalog->design_desc }}"
-                                data-date="{{ $catalog->created_at->format('m/d/Y') }}"
-                                data-images='@json($catalog->photos->pluck('image_path'))'>
+                                data-name="{{ $catalog->product_type ?? 'Catalog Item' }}"
+                                data-desc="{{ $catalog->industry ?? '' }}"
+                                data-date="{{ optional($catalog->created_at)->format('m/d/Y') }}"
+                                data-images='@json($catalog->generated_images ?? [])'>
                                 View Designs
                             </button>
                         </div>
@@ -120,13 +122,17 @@
             $('#modalDesc').text($(this).data('desc'));
             $('#modalDate').html(`<strong>Created:</strong> ${$(this).data('date')}`);
 
-            const first = '/storage/' + images[0];
-            $('#modalMainImage').attr('src', first).attr('data-active', first);
+            const first = images.length ? images[0] : '';
+            if (first) {
+                $('#modalMainImage').attr('src', first).attr('data-active', first);
+            } else {
+                $('#modalMainImage').attr('src', '').attr('data-active', '');
+            }
 
             images.forEach((img, i) => {
                 $('#modalDesigns').append(`
-            <img src="/storage/${img}"
-                 data-full="/storage/${img}"
+            <img src="${img}"
+                 data-full="${img}"
                  class="img-thumbnail thumb-img"
                  style="width:120px;height:120px;cursor:pointer;">
         `);
@@ -141,15 +147,15 @@
         });
 
         $('#exportAll').click(async function() {
+            const images = $('.thumb-img');
+            if (!images.length) return;
             const zip = new JSZip();
-            $('.thumb-img').each(async function(i) {
-                const res = await fetch($(this).data('full'));
+            for (const [i, el] of images.toArray().entries()) {
+                const res = await fetch($(el).data('full'));
                 const blob = await res.blob();
                 zip.file(`design_${i+1}.jpg`, blob);
-            });
-            const content = await zip.generateAsync({
-                type: "blob"
-            });
+            }
+            const content = await zip.generateAsync({ type: "blob" });
             saveAs(content, "catalog.zip");
         });
 

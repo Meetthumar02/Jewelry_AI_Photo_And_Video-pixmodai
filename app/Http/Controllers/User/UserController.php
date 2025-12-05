@@ -27,36 +27,35 @@ class UserController extends Controller
         return view('user.dashboard', compact('user', 'favoriteCount', 'catalogCount', 'recentLibrary'));
     }
 
-  public function catalogLibrary(Request $request)
-{
-    $userId = Auth::id();
+    public function catalogLibrary(Request $request)
+    {
+        $userId = Auth::id();
 
-    $query = CatalogStudio::where('user_id', $userId)
-        ->with('photos'); // ai_photo_shoots images
+        // Use photo shoot records as “catalog” items so the library is populated
+        $query = AIPhotoShoot::forUser($userId);
 
-    if ($request->filled('type')) {
-        $query->where('jewelry_type', $request->type);
+        if ($request->filled('type')) {
+            $query->where('product_type', $request->type);
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('product_type', 'like', "%$search%")
+                    ->orWhere('industry', 'like', "%$search%")
+                    ->orWhere('shoot_type', 'like', "%$search%");
+            });
+        }
+
+        $query->orderBy('id', $request->sort == 'oldest' ? 'asc' : 'desc');
+
+        $catalogs = $query->paginate(8)->withQueryString();
+
+        // Favorites currently rely on catalog_studios; return empty until that model is wired up
+        $favoriteIds = [];
+
+        return view('user.catalog_library', compact('catalogs', 'favoriteIds'));
     }
-
-    if ($request->filled('search')) {
-        $search = $request->search;
-        $query->where(function ($q) use ($search) {
-            $q->where('product_name', 'like', "%$search%")
-              ->orWhere('metal_type', 'like', "%$search%")
-              ->orWhere('jewelry_type', 'like', "%$search%");
-        });
-    }
-
-    $query->orderBy('id', $request->sort == 'oldest' ? 'asc' : 'desc');
-
-    $catalogs = $query->paginate(8)->withQueryString();
-
-    $favoriteIds = Favorite::where('user_id', $userId)
-        ->pluck('catalog_studio_id')
-        ->toArray();
-
-    return view('user.catalog_library', compact('catalogs', 'favoriteIds'));
-}
 
 
 
