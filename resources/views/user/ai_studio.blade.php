@@ -1206,12 +1206,7 @@
             // photoshoot generate
             document.getElementById('photoshoot-generateBtn').addEventListener('click', function() {
                 const activeTab = document.querySelector('.tab-content.active').id;
-
-                // -------------------------------------
-                // PHOTOSHOOT GENERATION
-                // -------------------------------------
-                if (activeTab === 'photoshoot-tab') {
-
+                if (activeTab === 'photoshoot') {
                     if (!photoshootData.uploadedImagePath || !photoshootData.selectedModelDesign) {
                         Toast.fire({
                             icon: 'warning',
@@ -1219,7 +1214,6 @@
                         });
                         return;
                     }
-
                     const payload = {
                         industry: document.getElementById('photoshoot-industry').value,
                         category: document.getElementById('photoshoot-category').value,
@@ -1230,96 +1224,42 @@
                         aspect_ratio: photoshootData.selectedRatio,
                         output_format: photoshootData.selectedFormat
                     };
-
                     Swal.fire({
                         title: 'Generating...',
                         html: 'Creating your perfect shot',
                         allowOutsideClick: false,
                         didOpen: () => Swal.showLoading()
                     });
-
-                    fetch("{{ route('ai.photoshoot.start') }}", {
-                            method: "POST",
-                            headers: {
-                                "Content-Type": "application/json",
-                                "X-CSRF-TOKEN": "{{ csrf_token() }}"
-                            },
-                            body: JSON.stringify(payload)
-                        })
-                        .then(r => r.json())
-                        .then(result => {
-                            Swal.close();
-                            if (result.success) {
-                                Toast.fire({
-                                    icon: 'success',
-                                    title: 'Photo shoot completed!'
-                                });
-                                displayResult(result.shoot, 'photoshoot');
-                            } else {
-                                Toast.fire({
-                                    icon: 'error',
-                                    title: result.message || 'Generation failed'
-                                });
-                            }
-                        });
-                }
-
-                // -------------------------------------
-                // CREATIVE GENERATION
-                // -------------------------------------
-                if (activeTab === 'creative-tab') {
-
-                    const prompt = creativePromptInput.value.trim();
-
-                    if (!prompt || prompt.length < 10) {
+                    fetch('{{ route('ai.photoshoot.start') }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify(payload)
+                    }).then(r => r.json()).then(result => {
+                        Swal.close();
+                        if (result.success) {
+                            Toast.fire({
+                                icon: 'success',
+                                title: 'Photo shoot completed!'
+                            });
+                            displayResult(result.shoot, 'photoshoot');
+                        } else {
+                            Toast.fire({
+                                icon: 'error',
+                                title: result.message || 'Generation failed'
+                            });
+                        }
+                    }).catch(err => {
+                        Swal.close();
                         Toast.fire({
-                            icon: 'warning',
-                            title: 'Please enter a detailed prompt (min 10 chars)'
+                            icon: 'error',
+                            title: 'Generation failed'
                         });
-                        return;
-                    }
-
-                    const payload = {
-                        prompt: prompt,
-                        uploaded_image: creativeData.uploadedImagePath,
-                        aspect_ratio: creativeData.selectedRatio,
-                        output_format: creativeData.selectedFormat
-                    };
-
-                    Swal.fire({
-                        title: 'Generating Creative Image...',
-                        html: 'AI is creating your image',
-                        allowOutsideClick: false,
-                        didOpen: () => Swal.showLoading()
                     });
-
-                    fetch("{{ route('creative.ai.generate') }}", {
-                            method: "POST",
-                            headers: {
-                                "Content-Type": "application/json",
-                                "X-CSRF-TOKEN": "{{ csrf_token() }}"
-                            },
-                            body: JSON.stringify(payload)
-                        })
-                        .then(r => r.json())
-                        .then(result => {
-                            Swal.close();
-                            if (result.success) {
-                                Toast.fire({
-                                    icon: 'success',
-                                    title: 'Image generated!'
-                                });
-                                displayResult(result.generation, 'creative');
-                            } else {
-                                Toast.fire({
-                                    icon: 'error',
-                                    title: result.message || 'Generation failed'
-                                });
-                            }
-                        });
                 }
             });
-
 
             function checkPhotoshootFormValid() {
                 document.getElementById('photoshoot-generateBtn').disabled = !(photoshootData.uploadedImagePath &&
