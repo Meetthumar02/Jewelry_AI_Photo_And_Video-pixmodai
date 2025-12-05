@@ -1,5 +1,6 @@
 @extends('user.app')
 @section('title', 'AI Studio')
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
 @section('content')
 
     <style>
@@ -825,6 +826,181 @@
             border: 1px solid #d1d5db;
             color: #111827
         }
+
+        .style-section {
+            margin-bottom: 28px;
+        }
+
+        .style-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+        }
+
+        .style-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .style-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #bababa;
+        }
+
+        .style-dropdown {
+            position: relative;
+            background: #121212;
+            border: 1px solid #2d2d2d;
+            padding: 10px 12px;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        .style-dropdown:hover {
+            border-color: #a855f7;
+        }
+
+        .dropdown-selected {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .dropdown-selected span {
+            flex: 1;
+            margin-left: 10px;
+            color: #fff;
+            font-size: 14px;
+        }
+
+        .opt-img {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            object-fit: cover;
+        }
+
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            left: 0;
+            width: 100%;
+            background: #1a1a1a;
+            border: 1px solid #2d2d2d;
+            border-radius: 10px;
+            margin-top: 6px;
+            z-index: 20;
+        }
+
+        .dropdown-item {
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            color: #d1d1d1;
+        }
+
+        .dropdown-item:hover {
+            background: #272727;
+            color: #fff;
+        }
+
+        .dropdown-item.active {
+            background: #3a0ca3;
+            color: #fff;
+        }
+
+        .style-dropdown.open .dropdown-menu {
+            display: block;
+        }
+
+        /* ------------------------ */
+        /* LIGHT MODE FIX FOR STYLE */
+        /* ------------------------ */
+        html[data-theme="light"] .style-dropdown {
+            background: #ffffff !important;
+            border: 1px solid #d1d5db !important;
+        }
+
+        html[data-theme="light"] .style-dropdown:hover {
+            border-color: #7c3aed !important;
+        }
+
+        html[data-theme="light"] .dropdown-selected span {
+            color: #111827 !important;
+        }
+
+        html[data-theme="light"] .dropdown-menu {
+            background: #ffffff !important;
+            border: 1px solid #d1d5db !important;
+        }
+
+        html[data-theme="light"] .dropdown-item {
+            color: #374151 !important;
+        }
+
+        html[data-theme="light"] .dropdown-item:hover {
+            background: #f3f4f6 !important;
+            color: #111827 !important;
+        }
+
+        html[data-theme="light"] .dropdown-item.active {
+            background: #7c3aed !important;
+            color: #ffffff !important;
+        }
+
+        /* -------- STYLE CHIP CLEAN DISPLAY -------- */
+
+        .style-chip {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: 0.2s ease;
+        }
+
+        .style-chip:hover {
+            border-color: #7c3aed;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .style-chip img {
+            width: 30px;
+            height: 30px;
+            border-radius: 6px;
+            object-fit: cover;
+        }
+
+        .style-chip span {
+            font-size: 14px;
+            font-weight: 500;
+            color: #111827;
+        }
+
+        html[data-theme="dark"] .style-chip {
+            background: #121212;
+            border-color: #2d2d2d;
+        }
+
+        html[data-theme="dark"] .style-chip span {
+            color: #fff;
+        }
+
+        /* Rotate arrow when dropdown is open */
+        .style-dropdown .bi-chevron-down {
+            transition: transform 0.25s ease;
+        }
+
+        .style-dropdown.open .bi-chevron-down {
+            transform: rotate(180deg);
+        }
     </style>
 
     <div class="ai-studio-wrapper">
@@ -837,41 +1013,115 @@
             <div class="left-content">
                 {{-- PHOTOSHOOT TAB --}}
                 <div class="tab-content active" id="photoshoot-tab">
-                    <div class="step-section">
+                    <div class="style-section">
                         <div class="step-title">1. Select Your Style</div>
-                        <div class="dropdowns-row">
-                            <div class="dropdown-group">
-                                <label class="dropdown-label">Industry</label>
-                                <select class="dropdown-select" id="photoshoot-industry">
-                                    <option value="">-- Select Industry --</option>
-                                    <option value="Jewellery" selected>Jewellery</option>
-                                    <option value="Fashion">Fashion</option>
-                                    <option value="Accessories">Accessories</option>
-                                </select>
+
+                        <div class="style-grid">
+
+                            <!-- Industry -->
+                            <div class="style-group">
+                                <label class="style-label">Industry</label>
+
+                                <div class="style-dropdown" id="industryDropdown">
+                                    <div class="dropdown-selected">
+                                        <img src="/assets\upload\catlog_studion_image/model_1279825432.png" class="opt-img">
+                                        <span>Jewellery</span>
+                                        <i class="bi bi-chevron-down"></i>
+                                    </div>
+
+                                    <div class="dropdown-menu">
+                                        <div class="dropdown-item active" data-value="Jewellery">
+                                            <img src="/assets\upload\catlog_studion_image/model_1279825432.png"
+                                                class="opt-img"> Jewellery
+                                        </div>
+                                        <div class="dropdown-item" data-value="Apparel">
+                                            <img src="/assets\upload\catlog_studion_image/model_1279825432.png"
+                                                class="opt-img"> Apparel
+                                        </div>
+                                        <div class="dropdown-item" data-value="Solewear">
+                                            <img src="/assets\upload\catlog_studion_image/model_1279825432.png"
+                                                class="opt-img"> Solewear
+                                        </div>
+                                        <div class="dropdown-item" data-value="Beauty">
+                                            <img src="/assets\upload\catlog_studion_image/model_1279825432.png"
+                                                class="opt-img"> Beauty
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="dropdown-group">
-                                <label class="dropdown-label">Category</label>
-                                <select class="dropdown-select" id="photoshoot-category">
-                                    <option value="">-- Select Category --</option>
-                                    <option value="Women Jewellery" selected>Women Jewellery</option>
-                                    <option value="Men Jewellery">Men Jewellery</option>
-                                    <option value="Kids Jewellery">Kids Jewellery</option>
-                                </select>
+
+                            <!-- Category -->
+                            <div class="style-group">
+                                <label class="style-label">Category</label>
+
+                                <div class="style-dropdown" id="categoryDropdown">
+                                    <div class="dropdown-selected">
+                                        <img src="/assets\upload\catlog_studion_image/model_1279825432.png" class="opt-img">
+                                        <span>Women Jewellery</span>
+                                        <i class="bi bi-chevron-down"></i>
+                                    </div>
+
+                                    <div class="dropdown-menu">
+                                        <div class="dropdown-item active" data-value="Women Jewellery">
+                                            <img src="/assets\upload\catlog_studion_image/model_1279825432.png"
+                                                class="opt-img"> Women Jewellery
+                                        </div>
+                                        <div class="dropdown-item" data-value="Men Jewellery">
+                                            <img src="/assets\upload\catlog_studion_image/model_1279825432.png"
+                                                class="opt-img"> Men Jewellery
+                                        </div>
+                                        <div class="dropdown-item" data-value="Kids Jewellery">
+                                            <img src="/assets\upload\catlog_studion_image/model_1279825432.png"
+                                                class="opt-img"> Kids Jewellery
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="dropdown-group">
-                                <label class="dropdown-label">Product Type</label>
-                                <select class="dropdown-select" id="photoshoot-productType">
-                                    <option value="">-- Select Item --</option>
-                                    <option value="Necklace" selected>Necklace</option>
-                                    <option value="Earrings">Earrings</option>
-                                    <option value="Ring">Ring</option>
-                                    <option value="Bracelet">Bracelet</option>
-                                    <option value="Pendant">Pendant</option>
-                                    <option value="Mangalsutra">Mangalsutra</option>
-                                </select>
+
+                            <!-- Product Type -->
+                            <div class="style-group">
+                                <label class="style-label">Product Type</label>
+
+                                <div class="style-dropdown" id="productDropdown">
+                                    <div class="dropdown-selected">
+                                        <img src="/assets\upload\catlog_studion_image/model_1279825432.png"
+                                            class="opt-img">
+                                        <span>Necklace</span>
+                                        <i class="bi bi-chevron-down"></i>
+                                    </div>
+
+                                    <div class="dropdown-menu">
+                                        <div class="dropdown-item active" data-value="Necklace">
+                                            <img src="/assets\upload\catlog_studion_image/model_1279825432.png"
+                                                class="opt-img"> Necklace
+                                        </div>
+                                        <div class="dropdown-item" data-value="Earrings">
+                                            <img src="/assets\upload\catlog_studion_image/model_1279825432.png"
+                                                class="opt-img"> Earrings
+                                        </div>
+                                        <div class="dropdown-item" data-value="Ring">
+                                            <img src="/assets\upload\catlog_studion_image/model_1279825432.png"
+                                                class="opt-img"> Ring
+                                        </div>
+                                        <div class="dropdown-item" data-value="Bracelet">
+                                            <img src="/assets\upload\catlog_studion_image/model_1279825432.png"
+                                                class="opt-img"> Bracelet
+                                        </div>
+                                        <div class="dropdown-item" data-value="Pendant">
+                                            <img src="/assets\upload\catlog_studion_image/model_1279825432.png"
+                                                class="opt-img"> Pendant
+                                        </div>
+                                        <div class="dropdown-item" data-value="Mangalsutra">
+                                            <img src="/assets\upload\catlog_studion_image/model_1279825432.png"
+                                                class="opt-img"> Mangalsutra
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
+
                         </div>
                     </div>
+
 
                     <div class="step-section">
                         <div class="step-title">2. Select Shoot Type</div>
@@ -1044,6 +1294,54 @@
                     updateGenerateState();
                 });
             });
+
+            document.querySelectorAll(".style-dropdown").forEach(drop => {
+                // Toggle this dropdown only
+                drop.addEventListener("click", function(e) {
+                    e.stopPropagation();
+
+                    // Close others
+                    document.querySelectorAll(".style-dropdown").forEach(d => {
+                        if (d !== drop) d.classList.remove("open");
+                    });
+
+                    // Toggle this one
+                    drop.classList.toggle("open");
+                });
+
+                // Handle item click
+                drop.querySelectorAll(".dropdown-item").forEach(item => {
+                    item.addEventListener("click", function(e) {
+                        e.stopPropagation();
+
+                        const parent = this.closest(".style-dropdown");
+
+                        parent.querySelector(".dropdown-selected span").innerText = this
+                            .dataset.value;
+                        parent.querySelector(".dropdown-selected img").src = this
+                            .querySelector("img").src;
+
+                        parent.querySelectorAll(".dropdown-item").forEach(i => i.classList
+                            .remove("active"));
+                        this.classList.add("active");
+
+                        parent.classList.remove("open"); // auto-close
+                    });
+                });
+            });
+
+            // Clicking anywhere outside closes all dropdowns
+            document.addEventListener("click", function() {
+                document.querySelectorAll(".style-dropdown").forEach(d => d.classList.remove("open"));
+            });
+
+
+            function closeAllDropdowns() {
+                document.querySelectorAll(".style-dropdown").forEach(d => d.classList.remove("open"));
+            }
+
+            document.addEventListener("click", closeAllDropdowns);
+
 
             /* ==================
                PHOTOSHOOT LOGIC
@@ -1556,12 +1854,6 @@
       </div>
     `;
             }
-
-            // set initial state (force light for creative if needed)
-            // if you want to always show creative in light mode, set attribute here
-            // document.documentElement.setAttribute('data-theme','light');
-
-            // small safety: update button states on load
             updateGenerateState();
         });
     </script>
