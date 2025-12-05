@@ -136,11 +136,21 @@ class AIPhotoShootController extends Controller
     {
         sleep(2);
 
+        // Resolve the uploaded image path. Uploads are currently saved under /public/upload/uploads,
+        // while the code originally expected storage/app/public. Try storage first, then fall back
+        // to the public path so we don't mark the shoot as failed unnecessarily.
         $uploadPath = storage_path('app/public/' . $shoot->uploaded_image);
-
         if (!file_exists($uploadPath)) {
-            $shoot->update(['status'=>'failed','error_message'=>'Uploaded image not found']);
-            return false;
+            $publicPath = public_path($shoot->uploaded_image);
+            if (file_exists($publicPath)) {
+                $uploadPath = $publicPath;
+            } else {
+                $shoot->update([
+                    'status' => 'failed',
+                    'error_message' => 'Uploaded image not found',
+                ]);
+                return false;
+            }
         }
 
         $generatedDir = public_path('upload/generated');

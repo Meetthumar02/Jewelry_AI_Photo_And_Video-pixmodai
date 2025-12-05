@@ -1,81 +1,61 @@
 <?php
-
+// app/Http/Controllers/User/CreativeAIController.php
 namespace App\Http\Controllers\User;
 
-use App\Models\User\CreativeAIGeneration;
-use App\Models\User\CreditTransaction;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Str;
+use App\Models\User\CreativeAIGeneration;
+use App\Models\User\CreditTransaction;
 use Illuminate\Validation\ValidationException;
 
 class CreativeAIController extends Controller
 {
     const CREDITS_PER_GENERATION = 20;
-    const MAX_FILE_SIZE = 10485760;
+    const MAX_FILE_SIZE = 10485760; // 10 MB
     const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/jpg'];
 
+    /**
+     * Show the AI studio view.
+     */
     public function index()
     {
-        $modelDesigns = [
-            ['id'=>'classic_model_1','name'=>'Classic Model 1','thumbnail'=>'https://picsum.photos/id/237/200/300','category'=>'classic'],
-            ['id'=>'classic_model_2','name'=>'Classic Model 2','thumbnail'=>'https://picsum.photos/seed/picsum/200/300','category'=>'classic'],
-            ['id'=>'classic_model_1','name'=>'Classic Model 1','thumbnail'=>'https://picsum.photos/id/237/200/300','category'=>'classic'],
-            ['id'=>'classic_model_2','name'=>'Classic Model 2','thumbnail'=>'https://picsum.photos/seed/picsum/200/300','category'=>'classic'],
-            ['id'=>'lifestyle_model_1','name'=>'Lifestyle Model 1','thumbnail'=>'https://picsum.photos/200/300?grayscale','category'=>'lifestyle'],
-            ['id'=>'lifestyle_model_2','name'=>'Lifestyle Model 2','thumbnail'=>'https://picsum.photos/200/300/?blur','category'=>'lifestyle'],
-            ['id'=>'luxury_model_1','name'=>'Luxury Model 1','thumbnail'=>'https://picsum.photos/id/870/200/300?grayscale&blur=2','category'=>'luxury'],
-            ['id'=>'luxury_model_2','name'=>'Luxury Model 2','thumbnail'=>'https://picsum.photos/id/237/200/300','category'=>'luxury'],
-            ['id'=>'outdoor_model_1','name'=>'Outdoor Model 1','thumbnail'=>'https://picsum.photos/seed/picsum/200/300','category'=>'outdoor'],
-            ['id'=>'outdoor_model_2','name'=>'Outdoor Model 2','thumbnail'=>'https://picsum.photos/seed/picsum/200/300','category'=>'outdoor'],
-        ];
+        // Example model designs - in real app load from DB
+        $modelDesigns = [['id' => 'classic_model_1', 'name' => 'Classic Model 1', 'thumbnail' => 'https://picsum.photos/id/237/200/300', 'category' => 'classic'], ['id' => 'classic_model_2', 'name' => 'Classic Model 2', 'thumbnail' => 'https://picsum.photos/seed/picsum/200/300', 'category' => 'classic'], ['id' => 'lifestyle_model_1', 'name' => 'Lifestyle Model 1', 'thumbnail' => 'https://picsum.photos/200/300?grayscale', 'category' => 'lifestyle'], ['id' => 'luxury_model_1', 'name' => 'Luxury Model 1', 'thumbnail' => 'https://picsum.photos/id/870/200/300?grayscale&blur=2', 'category' => 'luxury'], ['id' => 'outdoor_model_1', 'name' => 'Outdoor Model 1', 'thumbnail' => 'https://picsum.photos/seed/picsum/200/300', 'category' => 'outdoor']];
+
         return view('user.ai_studio', compact('modelDesigns'));
     }
 
+    /**
+     * Upload an image (used by both photoshoot & creative)
+     */
     public function uploadImage(Request $request)
     {
         try {
-            Log::info('UPLOAD API HIT');
-
             if (!$request->hasFile('image')) {
-                Log::error('NO FILE RECEIVED');
-                return response()->json(
-                    [
-                        'success' => false,
-                        'message' => 'No file received',
-                    ],
-                    422,
-                );
+                return response()->json(['success' => false, 'message' => 'No file received'], 422);
             }
 
             $file = $request->file('image');
+            if ($file->getSize() > self::MAX_FILE_SIZE) {
+                return response()->json(['success' => false, 'message' => 'File too large (max 10MB)'], 422);
+            }
+            if (!in_array($file->getMimeType(), self::ALLOWED_MIME_TYPES)) {
+                return response()->json(['success' => false, 'message' => 'Invalid file type'], 422);
+            }
 
-            Log::info('FILE RECEIVED', [
-                'name' => $file->getClientOriginalName(),
-                'size' => $file->getSize(),
-                'mime' => $file->getMimeType(),
-            ]);
-
-            $filename = 'creative_' . time() . '_' . Str::random(10) . '.' . $file->getClientOriginalExtension();
-
+            $filename = 'creative_upload_' . time() . '_' . Str::random(8) . '.' . $file->getClientOriginalExtension();
             $destination = public_path('upload');
 
             if (!file_exists($destination)) {
                 mkdir($destination, 0777, true);
-                Log::info('UPLOAD FOLDER CREATED');
             }
 
             $file->move($destination, $filename);
-
             $path = 'upload/' . $filename;
-
-            Log::info('UPLOAD SUCCESS', [
-                'path' => $path,
-                'url' => asset($path),
-            ]);
 
             return response()->json([
                 'success' => true,
@@ -84,111 +64,92 @@ class CreativeAIController extends Controller
                 'filename' => $filename,
             ]);
         } catch (\Exception $e) {
-            Log::error('UPLOAD CRASH', [
-                'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-            ]);
-
-            return response()->json(
-                [
-                    'success' => false,
-                    'message' => 'Upload failed',
-                ],
-                500,
-            );
+            Log::error('UPLOAD CRASH: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+            return response()->json(['success' => false, 'message' => 'Upload failed'], 500);
         }
     }
 
+    /**
+     * Generate creative image (uses credits etc).
+     */
     public function generate(Request $request)
     {
         try {
             $validated = $request->validate([
                 'prompt' => 'required|string|min:10|max:2000',
-                'uploaded_image' => 'required|string',
+                'uploaded_image' => 'nullable|string',
                 'aspect_ratio' => 'required|string|in:1:1,4:3,16:9,3:4,9:16',
                 'output_format' => 'required|string|in:JPEG,PNG',
             ]);
 
-            $userId = Auth::id();
             $user = Auth::user();
-            $creditsNeeded = self::CREDITS_PER_GENERATION;
-
-            if ($user->total_credits < $creditsNeeded) {
-                return response()->json(
-                    [
-                        'success' => false,
-                        'message' => 'Insufficient credits',
-                    ],
-                    400,
-                );
+            if (!$user) {
+                return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
             }
 
+            $creditsNeeded = self::CREDITS_PER_GENERATION;
+            if ($user->total_credits < $creditsNeeded) {
+                return response()->json(['success' => false, 'message' => 'Insufficient credits'], 400);
+            }
+
+            // Create generation record
             $generation = CreativeAIGeneration::create([
-                'user_id' => $userId,
+                'user_id' => $user->id,
                 'prompt' => $validated['prompt'],
-                'uploaded_image' => $validated['uploaded_image'],
+                'uploaded_image' => $validated['uploaded_image'] ?? null,
                 'aspect_ratio' => $validated['aspect_ratio'],
                 'output_format' => $validated['output_format'],
                 'status' => 'processing',
                 'credits_used' => $creditsNeeded,
             ]);
 
+            // Deduct credits immediately
             $user->total_credits -= $creditsNeeded;
             $user->save();
 
             CreditTransaction::create([
-                'user_id' => $userId,
+                'user_id' => $user->id,
                 'change_type' => 'use',
                 'credits' => -$creditsNeeded,
                 'reference_type' => 'creative_ai',
                 'reference_id' => $generation->id,
-                'note' => 'Creative AI Generation',
+                'note' => 'Creative AI generation started',
             ]);
 
-            Log::info('Creative AI Generation Started', [
-                'generation_id' => $generation->id,
-                'user_id' => $userId,
-                'credits_used' => $creditsNeeded,
-            ]);
+            Log::info('Creative AI Generation queued', ['generation_id' => $generation->id, 'user_id' => $user->id]);
 
-            $generation->markAsProcessing();
-
-            $enhancedPrompt = $this->enhancePrompt($generation->prompt, $generation->aspect_ratio);
-
+            // For the demo, do a synchronous mock generation (replace with async job in production)
+            $enhancedPrompt = $this->enhancePrompt($validated['prompt'], $validated['aspect_ratio']);
             $generatedImagePath = $this->mockGenerateCreativeImage($generation, $enhancedPrompt);
 
-            if (!$generatedImagePath || !is_string($generatedImagePath)) {
+            if (!$generatedImagePath) {
+                // Refund credits on failure
                 $user->total_credits += $creditsNeeded;
                 $user->save();
-
                 CreditTransaction::create([
-                    'user_id' => $userId,
+                    'user_id' => $user->id,
                     'change_type' => 'refund',
                     'credits' => $creditsNeeded,
                     'reference_type' => 'creative_ai',
                     'reference_id' => $generation->id,
-                    'note' => 'Refund - Creative AI Generation Failed',
+                    'note' => 'Refund - generation failed',
                 ]);
+                $generation->status = 'failed';
+                $generation->save();
 
-                $generation->markAsFailed('Mock generation returned invalid image');
-
-                return response()->json(
-                    [
-                        'success' => false,
-                        'message' => 'Image generation failed. Credits refunded.',
-                    ],
-                    500,
-                );
+                return response()->json(['success' => false, 'message' => 'Image generation failed. Credits refunded.'], 500);
             }
 
-            $generation->markAsCompleted(
-                [$generatedImagePath],
-                [
-                    'prompt' => $generation->prompt,
-                    'service' => 'Mock Service',
-                    'time' => now()->toDateTimeString(),
-                ],
-            );
+            // mark completed with metadata
+            $generation->status = 'completed';
+            $generation->generated_images = [$generatedImagePath];
+            $generation->service_response = [
+                'prompt' => $validated['prompt'],
+                'enhanced_prompt' => $enhancedPrompt,
+                'service' => 'mock',
+                'time' => now()->toDateTimeString(),
+            ];
+            $generation->save();
 
             $generation->refresh();
 
@@ -200,76 +161,19 @@ class CreativeAIController extends Controller
                 'credits_remaining' => $user->total_credits,
             ]);
         } catch (ValidationException $e) {
-            return response()->json(
-                [
-                    'success' => false,
-                    'message' => $e->getMessage(),
-                    'errors' => $e->errors(),
-                ],
-                422,
-            );
+            return response()->json(['success' => false, 'message' => 'Validation failed', 'errors' => $e->errors()], 422);
         } catch (\Exception $e) {
-            Log::error('Creative AI Generation Error: ' . $e->getMessage(), [
-                'user_id' => Auth::id(),
-                'trace' => $e->getTraceAsString(),
-            ]);
-
-            if (isset($generation)) {
-                $generation->markAsFailed($e->getMessage());
-            }
-
-            return response()->json(
-                [
-                    'success' => false,
-                    'message' => 'Failed to generate image. Please try again.',
-                ],
-                500,
-            );
+            Log::error('Creative AI generation error: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+            return response()->json(['success' => false, 'message' => 'Server error creating generation'], 500);
         }
     }
 
-    private function generateCreativeImage($generation)
-    {
-        try {
-            $generation->markAsProcessing();
-
-            $enhancedPrompt = $this->enhancePrompt($generation->prompt, $generation->aspect_ratio);
-            sleep(2);
-
-            $generatedImagePath = $this->mockGenerateCreativeImage($generation, $enhancedPrompt);
-
-            if (!$generatedImagePath) {
-                throw new \Exception('Failed to generate image from AI service.');
-            }
-
-            $aiResponse = [
-                'enhanced_prompt' => $enhancedPrompt,
-                'original_prompt' => $generation->prompt,
-                'aspect_ratio' => $generation->aspect_ratio,
-                'output_format' => $generation->output_format,
-                'timestamp' => now()->toIso8601String(),
-                'service' => 'Mock AI Service',
-            ];
-
-            $generation->markAsCompleted([$generatedImagePath], $aiResponse);
-
-            return true;
-        } catch (\Exception $e) {
-            Log::error('Creative AI Image Generation Failed', [
-                'generation_id' => $generation->id,
-                'error' => $e->getMessage(),
-            ]);
-
-            $generation->markAsFailed($e->getMessage());
-
-            return false;
-        }
-    }
-
+    /**
+     * Enhance user prompt with quality keywords and aspect hints.
+     */
     private function enhancePrompt($userPrompt, $aspectRatio)
     {
         $qualityKeywords = ['ultra detailed', 'high quality', 'professional photography', '8k resolution', 'realistic', 'sharp focus', 'vibrant colors'];
-
         $aspectEnhancements = [
             '1:1' => 'square composition, centered subject, balanced frame',
             '4:3' => 'standard photography composition, classic aspect',
@@ -277,188 +181,152 @@ class CreativeAIController extends Controller
             '3:4' => 'portrait orientation, vertical composition, tall frame',
             '9:16' => 'mobile portrait, tall vertical composition, story format',
         ];
-
         $aspectHint = $aspectEnhancements[$aspectRatio] ?? 'standard composition';
-        $qualityString = implode(', ', $qualityKeywords);
-
-        return "{$userPrompt}, {$aspectHint}, {$qualityString}";
+        return $userPrompt . ', ' . $aspectHint . ', ' . implode(', ', $qualityKeywords);
     }
 
+    /**
+     * Mock generation: copies uploaded image to /public/upload/generated and returns public path.
+     */
     private function mockGenerateCreativeImage($generation, $prompt)
     {
         try {
-            Log::info('=== MOCK GENERATION START ===');
-
-            Log::info('Generation Data:', [
-                'id' => $generation->id,
-                'uploaded_image' => $generation->uploaded_image,
-            ]);
-
-            if (!$generation->uploaded_image) {
-                Log::error('❌ uploaded_image IS NULL');
-                return null;
+            if (empty($generation->uploaded_image) || !file_exists(public_path($generation->uploaded_image))) {
+                // If none uploaded, create a placeholder using picsum
+                $seed = rand(1000, 9999);
+                $newFile = 'creative_gen_' . time() . '_' . Str::random(6) . '.jpg';
+                $targetDir = public_path('upload/generated');
+                if (!file_exists($targetDir)) {
+                    mkdir($targetDir, 0777, true);
+                }
+                // Try to fetch remote picsum into file (if allow_url_fopen enabled)
+                $remote = "https://picsum.photos/1200/800?random={$seed}";
+                try {
+                    $contents = @file_get_contents($remote);
+                    if ($contents) {
+                        file_put_contents($targetDir . DIRECTORY_SEPARATOR . $newFile, $contents);
+                    } else {
+                        copy(public_path('placeholder.jpg'), $targetDir . DIRECTORY_SEPARATOR . $newFile);
+                    }
+                } catch (\Exception $e) {
+                    copy(public_path('placeholder.jpg'), $targetDir . DIRECTORY_SEPARATOR . $newFile);
+                }
+                return '/upload/generated/' . $newFile;
             }
 
+            // uploaded_image is a relative public path like 'upload/filename.jpg'
             $relativePath = str_replace(['\\', '//'], '/', $generation->uploaded_image);
             $sourcePath = public_path($relativePath);
 
-            Log::info('SOURCE PATH CHECK:', [
-                'relative' => $relativePath,
-                'absolute' => $sourcePath,
-            ]);
-
             if (!file_exists($sourcePath)) {
-                Log::error('❌ FILE NOT FOUND', [
-                    'path' => $sourcePath,
-                ]);
+                Log::error('Mock generation: source file not found', ['source' => $sourcePath]);
                 return null;
             }
 
             $targetDir = public_path('upload/generated');
-
             if (!file_exists($targetDir)) {
                 mkdir($targetDir, 0777, true);
-                Log::info('GENERATED DIRECTORY CREATED');
             }
 
             $newFile = 'creative_gen_' . time() . '_' . Str::random(8) . '.jpg';
             $targetPath = $targetDir . DIRECTORY_SEPARATOR . $newFile;
 
-            Log::info('COPY START', [
-                'from' => $sourcePath,
-                'to' => $targetPath,
-            ]);
-
-            if (!copy($sourcePath, $targetPath)) {
-                Log::error('❌ FILE COPY FAILED');
+            if (!@copy($sourcePath, $targetPath)) {
+                Log::error('Mock generation: copy failed', ['from' => $sourcePath, 'to' => $targetPath]);
                 return null;
             }
 
-            $publicUrl = '/upload/generated/' . $newFile;
-
-            Log::info('✅ MOCK GENERATION SUCCESS', [
-                'url' => $publicUrl,
-            ]);
-
-            return $publicUrl;
+            return '/upload/generated/' . $newFile;
         } catch (\Exception $e) {
-            Log::error('🔥 MOCK GENERATION CRASH', [
-                'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-            ]);
-
+            Log::error('Mock generate crash: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
             return null;
         }
     }
 
+    /**
+     * Status for a generation.
+     */
     public function getStatus($id)
     {
         try {
             $generation = CreativeAIGeneration::where('user_id', Auth::id())->findOrFail($id);
-
             return response()->json([
                 'success' => true,
                 'generation' => $generation,
-                'is_completed' => $generation->isCompleted(),
-                'is_processing' => $generation->isProcessing(),
-                'is_failed' => $generation->isFailed(),
+                'is_completed' => $generation->status === 'completed',
+                'is_processing' => $generation->status === 'processing',
+                'is_failed' => $generation->status === 'failed',
                 'status' => $generation->status,
-                'status_label' => $generation->status_label,
             ]);
         } catch (\Exception $e) {
-            return response()->json(
-                [
-                    'success' => false,
-                    'message' => 'Generation not found.',
-                ],
-                404,
-            );
+            return response()->json(['success' => false, 'message' => 'Not found'], 404);
         }
     }
 
+    /**
+     * Download generated image file.
+     */
     public function downloadImage($id)
     {
         try {
             $generation = CreativeAIGeneration::where('user_id', Auth::id())->findOrFail($id);
-
-            if (!$generation->isCompleted()) {
-                abort(400, 'Generation not completed yet. Please wait.');
+            if ($generation->status !== 'completed') {
+                abort(400, 'Generation not completed');
+            }
+            $images = $generation->generated_images ?? [];
+            $first = $images[0] ?? null;
+            if (!$first) {
+                abort(404, 'No image found');
             }
 
-            $firstImage = $generation->first_image;
-
-            if (!$firstImage) {
-                abort(404, 'No generated image found.');
+            // first is '/upload/generated/file.jpg' style path
+            $filePath = public_path(trim($first, '/'));
+            if (!file_exists($filePath)) {
+                abort(404, 'Image not found on disk');
             }
 
-            $filePath = str_replace('/storage/', '', $firstImage);
-
-            if (!Storage::disk('public')->exists($filePath)) {
-                abort(404, 'Image file not found on server.');
-            }
-
-            $filename = "creative_ai_gen_{$generation->id}_" . now()->format('YmdHis') . '.jpg';
-
-            Log::info('Creative AI Image Downloaded', [
-                'generation_id' => $generation->id,
-                'user_id' => Auth::id(),
-            ]);
-
-            return Storage::disk('public')->download($filePath, $filename);
+            return response()->download($filePath, "creative_ai_{$generation->id}_" . now()->format('YmdHis') . '.jpg');
         } catch (\Exception $e) {
-            Log::error('Creative AI Download Error: ' . $e->getMessage());
-            abort(500, 'Failed to download image.');
+            Log::error('Download error: ' . $e->getMessage());
+            abort(500, 'Failed to download');
         }
     }
 
+    /**
+     * Delete a generation.
+     */
     public function destroy($id)
     {
         try {
             $generation = CreativeAIGeneration::where('user_id', Auth::id())->findOrFail($id);
-
+            // optionally delete files from disk
+            if ($generation->generated_images) {
+                foreach ($generation->generated_images as $img) {
+                    $path = public_path(trim($img, '/'));
+                    if (file_exists($path)) {
+                        @unlink($path);
+                    }
+                }
+            }
             $generation->delete();
-
-            Log::info('Creative AI Generation Deleted', [
-                'generation_id' => $id,
-                'user_id' => Auth::id(),
-            ]);
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Generation deleted successfully.',
-            ]);
+            return response()->json(['success' => true, 'message' => 'Deleted']);
         } catch (\Exception $e) {
-            Log::error('Creative AI Delete Error: ' . $e->getMessage());
-
-            return response()->json(
-                [
-                    'success' => false,
-                    'message' => 'Failed to delete generation.',
-                ],
-                500,
-            );
+            Log::error('Destroy error: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Delete failed'], 500);
         }
     }
 
+    /**
+     * Pagination history (AJAX)
+     */
     public function history()
     {
         try {
-            $generations = CreativeAIGeneration::forUser(Auth::id())->latest()->paginate(12);
-
-            return response()->json([
-                'success' => true,
-                'generations' => $generations,
-            ]);
+            $gens = CreativeAIGeneration::forUser(Auth::id())->latest()->paginate(12);
+            return response()->json(['success' => true, 'generations' => $gens]);
         } catch (\Exception $e) {
-            Log::error('Creative AI History Error: ' . $e->getMessage());
-
-            return response()->json(
-                [
-                    'success' => false,
-                    'message' => 'Failed to load history.',
-                ],
-                500,
-            );
+            Log::error('History error: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Failed to load history'], 500);
         }
     }
 }

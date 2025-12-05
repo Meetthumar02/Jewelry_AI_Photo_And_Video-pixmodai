@@ -1,19 +1,21 @@
+{{-- resources/views/user/ai_studio.blade.php --}}
 @extends('user.app')
 @section('title', 'AI Studio')
 @section('content')
 
     <style>
+        /* Reset + base */
         * {
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
+            box-sizing: border-box
         }
 
         .ai-studio-wrapper {
             display: flex;
             height: 100vh;
             background: #000;
-            overflow: hidden;
+            overflow: hidden
         }
 
         .left-sidebar {
@@ -23,7 +25,7 @@
             overflow-y: auto;
             border-right: 1px solid #1f1f1f;
             display: flex;
-            flex-direction: column;
+            flex-direction: column
         }
 
         .top-tabs {
@@ -31,7 +33,7 @@
             gap: 12px;
             padding: 12px 20px;
             border-bottom: 1px solid #1f1f1f;
-            background: #0a0a0a;
+            background: #0a0a0a
         }
 
         .tab-btn {
@@ -44,69 +46,69 @@
             font-weight: 500;
             cursor: pointer;
             border-radius: 8px;
-            text-decoration: none !important;
-            transition: all 0.2s;
+            text-decoration: none;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
+            transition: all .2s
         }
 
         .tab-btn.active {
             background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%);
             color: #fff;
-            border-color: #a855f7;
+            border-color: #a855f7
         }
 
         .tab-btn:hover:not(.active) {
-            background: rgba(168, 85, 247, 0.15);
+            background: rgba(168, 85, 247, .15);
             border-color: #a855f7;
-            color: #fff;
+            color: #fff
         }
 
         .left-content {
             padding: 24px;
             flex: 1;
-            overflow-y: auto;
+            overflow-y: auto
         }
 
         .tab-content {
-            display: none;
+            display: none
         }
 
         .tab-content.active {
-            display: block;
+            display: block
         }
 
-        /* AI Photoshoot Styles */
+        /* Sections */
         .step-section {
-            margin-bottom: 32px;
+            margin-bottom: 32px
         }
 
         .step-title {
             font-size: 15px;
             font-weight: 600;
             color: #fff;
-            margin-bottom: 16px;
+            margin-bottom: 16px
         }
 
         .dropdowns-row {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 12px;
-            margin-bottom: 20px;
+            margin-bottom: 20px
         }
 
         .dropdown-group {
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 6px
         }
 
         .dropdown-label {
             font-size: 12px;
             color: #9ca3af;
-            font-weight: 500;
+            font-weight: 500
         }
 
         .dropdown-select {
@@ -118,27 +120,27 @@
             color: #fff;
             font-size: 13px;
             cursor: pointer;
-            transition: all 0.2s;
             padding-right: 12px;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='gray'%3E%3Cpath d='M5 7l5 5 5-5'/%3E%3C/svg%3E");
             background-repeat: no-repeat;
             background-position: right 19px center;
-            background-size: 14px;
+            background-size: 14px
         }
 
         .dropdown-select:hover {
-            border-color: #404040;
+            border-color: #404040
         }
 
         .dropdown-select:focus {
             outline: none;
-            border-color: #a855f7;
+            border-color: #a855f7
         }
 
+        /* Pills */
         .shoot-type-row {
             display: flex;
             gap: 10px;
-            margin-bottom: 24px;
+            margin-bottom: 24px
         }
 
         .shoot-type-pill {
@@ -150,27 +152,28 @@
             font-size: 13px;
             font-weight: 500;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all .2s
         }
 
         .shoot-type-pill:hover {
             border-color: #a855f7;
-            color: #fff;
+            color: #fff
         }
 
         .shoot-type-pill.active {
             background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%);
             border-color: #a855f7;
-            color: #fff;
+            color: #fff
         }
 
+        /* Model slider */
         .model-slider-wrapper {
             position: relative;
             background: #0f0f0f;
             border-radius: 14px;
             padding: 14px 48px;
             border: 1px solid #1f1f1f;
-            margin-bottom: 24px;
+            margin-bottom: 24px
         }
 
         .model-slider {
@@ -179,10 +182,11 @@
             overflow-x: auto;
             scroll-behavior: smooth;
             scrollbar-width: none;
+            padding-bottom: 6px
         }
 
         .model-slider::-webkit-scrollbar {
-            display: none;
+            display: none
         }
 
         .model-card {
@@ -193,23 +197,27 @@
             cursor: pointer;
             border: 2px solid transparent;
             background: #1a1a1a;
-            transition: all 0.2s;
+            transition: all .2s;
+            display: flex;
+            align-items: center;
+            justify-content: center
         }
 
         .model-card img {
             width: 100%;
             height: 100%;
             object-fit: cover;
+            border-radius: 10px
         }
 
         .model-card:hover {
             transform: scale(1.05);
-            border-color: #a855f7;
+            border-color: #a855f7
         }
 
         .model-card.selected {
             border-color: #a855f7;
-            box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.4);
+            box-shadow: 0 0 0 3px rgba(168, 85, 247, .4)
         }
 
         .slider-btn {
@@ -226,27 +234,27 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 10;
+            z-index: 10
         }
 
         .slider-btn:hover {
-            background: #a855f7;
+            background: #a855f7
         }
 
         .slider-btn.left {
-            left: 10px;
+            left: 10px
         }
 
         .slider-btn.right {
-            right: 10px;
+            right: 10px
         }
 
-        /* Creative AI Styles */
+        /* Upload / prompt */
         .prompt-label {
             font-size: 12px;
             color: #9ca3af;
             margin-bottom: 8px;
-            display: block;
+            display: block
         }
 
         .prompt-textarea-wrapper {
@@ -255,7 +263,7 @@
             border-radius: 12px;
             background: #0f0f0f;
             padding: 16px;
-            margin-bottom: 20px;
+            margin-bottom: 20px
         }
 
         .prompt-textarea {
@@ -267,18 +275,18 @@
             font-size: 13px;
             line-height: 1.6;
             resize: vertical;
-            outline: none;
+            outline: none
         }
 
         .prompt-textarea::placeholder {
-            color: #6b7280;
+            color: #6b7280
         }
 
         .prompt-actions {
             display: flex;
             justify-content: flex-end;
             gap: 8px;
-            margin-top: 12px;
+            margin-top: 12px
         }
 
         .prompt-icon-btn {
@@ -292,22 +300,16 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: all 0.2s;
-            font-size: 14px;
+            transition: all .2s;
+            font-size: 14px
         }
 
         .prompt-icon-btn:hover {
             border-color: #a855f7;
-            color: #fff;
+            color: #fff
         }
 
-        .upload-description {
-            font-size: 12px;
-            color: #6b7280;
-            margin-bottom: 12px;
-        }
-
-        /* Common Styles */
+        /* upload area common */
         .upload-area {
             background: #0f0f0f;
             border: 2px dashed #2a2a2a;
@@ -315,80 +317,81 @@
             padding: 32px;
             text-align: center;
             cursor: pointer;
-            transition: all 0.2s;
-            margin-bottom: 20px;
+            transition: all .2s;
+            margin-bottom: 20px
         }
 
         .upload-area:hover {
             border-color: #a855f7;
-            background: #141414;
+            background: #141414
         }
 
         .upload-area.has-file {
             border-color: #10b981;
             border-style: solid;
             padding: 0;
-            height: auto;
+            height: auto
         }
 
         .upload-placeholder {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 8px;
+            gap: 8px
         }
 
         .upload-placeholder i {
             font-size: 40px;
             color: #a855f7;
-            margin-bottom: 8px;
+            margin-bottom: 8px
         }
 
         .upload-placeholder .main-text {
             color: #fff;
             font-size: 14px;
-            font-weight: 500;
+            font-weight: 500
         }
 
         .upload-placeholder .sub-text {
             color: #6b7280;
-            font-size: 12px;
+            font-size: 12px
         }
 
         .upload-link {
             color: #a855f7;
             text-decoration: underline;
-            cursor: pointer;
+            cursor: pointer
         }
 
         .upload-preview-img {
             width: 100%;
             max-height: 300px;
             object-fit: contain;
-            border-radius: 10px;
+            border-radius: 10px
         }
 
+        /* config controls */
         .config-row {
             display: flex;
             gap: 16px;
-            margin-bottom: 20px;
+            margin-bottom: 20px
         }
 
         .config-group {
-            flex: 1;
+            flex: 1
         }
 
         .config-label {
             font-size: 12px;
             color: #9ca3af;
             margin-bottom: 8px;
-            display: block;
+            display: block
         }
 
         .ratio-grid {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
-            gap: 6px;
+            gap: 6px
         }
 
         .ratio-option {
@@ -400,23 +403,23 @@
             font-size: 12px;
             text-align: center;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all .2s
         }
 
         .ratio-option:hover {
             border-color: #404040;
-            color: #fff;
+            color: #fff
         }
 
         .ratio-option.active {
             background: #a855f7;
             border-color: #a855f7;
-            color: #fff;
+            color: #fff
         }
 
         .format-grid {
             display: flex;
-            gap: 8px;
+            gap: 8px
         }
 
         .format-option {
@@ -430,20 +433,21 @@
             text-align: center;
             font-weight: 500;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all .2s
         }
 
         .format-option:hover {
             border-color: #404040;
-            color: #fff;
+            color: #fff
         }
 
         .format-option.active {
             background: #fff;
             border-color: #fff;
-            color: #000;
+            color: #000
         }
 
+        /* generate area */
         .generate-section {
             position: sticky;
             bottom: 0;
@@ -452,7 +456,7 @@
             border-top: 1px solid #1f1f1f;
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 12px
         }
 
         .generate-btn {
@@ -465,31 +469,30 @@
             font-size: 14px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 8px
         }
 
         .generate-btn:hover:not(:disabled) {
             transform: translateY(-1px);
-            box-shadow: 0 8px 20px rgba(168, 85, 247, 0.4);
+            box-shadow: 0 8px 20px rgba(168, 85, 247, .4)
         }
 
         .generate-btn:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
+            opacity: .4;
+            cursor: not-allowed
         }
 
         .generate-btn.creative-disabled {
             background: #4a5568;
-            color: #9ca3af;
+            color: #9ca3af
         }
 
         .generate-btn.creative-enabled {
             background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%);
-            color: #fff;
+            color: #fff
         }
 
         .play-btn {
@@ -504,14 +507,15 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.2s;
+            transition: all .2s
         }
 
         .play-btn:hover {
             border-color: #a855f7;
-            color: #fff;
+            color: #fff
         }
 
+        /* right preview */
         .right-panel {
             flex: 1;
             background: #000;
@@ -519,7 +523,7 @@
             align-items: center;
             justify-content: center;
             padding: 40px;
-            position: relative;
+            position: relative
         }
 
         .preview-area {
@@ -528,45 +532,46 @@
             height: 100%;
             max-height: 700px;
             border-radius: 16px;
-            background: linear-gradient(135deg, rgba(168, 85, 247, 0.1) 0%, rgba(124, 58, 237, 0.1) 100%);
-            border: 1px solid rgba(168, 85, 247, 0.2);
+            background: linear-gradient(135deg, rgba(168, 85, 247, .1)0%, rgba(124, 58, 237, .1)100%);
+            border: 1px solid rgba(168, 85, 247, .2);
             display: flex;
             align-items: center;
             justify-content: center;
             position: relative;
-            overflow: hidden;
+            overflow: hidden
         }
 
         .preview-empty {
             text-align: center;
-            color: #6b7280;
+            color: #6b7280
         }
 
         .preview-empty i {
             font-size: 80px;
             color: #a855f7;
-            opacity: 0.3;
-            margin-bottom: 20px;
+            opacity: .3;
+            margin-bottom: 20px
         }
 
         .preview-empty h6 {
             font-size: 16px;
             font-weight: 500;
             color: #9ca3af;
-            margin-bottom: 8px;
+            margin-bottom: 8px
         }
 
         .preview-empty p {
             font-size: 14px;
-            color: #6b7280;
+            color: #6b7280
         }
 
+        /* preview result */
         .preview-image-container {
             width: 100%;
             height: 100%;
             display: flex;
             flex-direction: column;
-            padding: 24px;
+            padding: 24px
         }
 
         .preview-success-badge {
@@ -574,14 +579,14 @@
             align-items: center;
             gap: 8px;
             padding: 8px 16px;
-            background: rgba(16, 185, 129, 0.1);
+            background: rgba(16, 185, 129, .1);
             border: 1px solid #10b981;
             border-radius: 24px;
             color: #10b981;
             font-size: 13px;
             font-weight: 500;
             margin-bottom: 16px;
-            align-self: center;
+            align-self: center
         }
 
         .preview-image {
@@ -589,20 +594,20 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-bottom: 16px;
+            margin-bottom: 16px
         }
 
         .preview-image img {
             max-width: 100%;
             max-height: 100%;
             border-radius: 12px;
-            object-fit: contain;
+            object-fit: contain
         }
 
         .preview-actions {
             display: flex;
             gap: 12px;
-            justify-content: center;
+            justify-content: center
         }
 
         .preview-btn {
@@ -611,66 +616,234 @@
             font-size: 14px;
             font-weight: 500;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all .2s;
             display: flex;
             align-items: center;
             gap: 8px;
-            border: none;
+            border: none
         }
 
         .btn-download {
             background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            color: #fff;
+            color: #fff
         }
 
         .btn-share {
             background: #1a1a1a;
             color: #fff;
-            border: 1px solid #2a2a2a;
+            border: 1px solid #2a2a2a
         }
 
         .btn-download:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 16px rgba(16, 185, 129, 0.3);
+            box-shadow: 0 8px 16px rgba(16, 185, 129, .3)
         }
 
         .btn-share:hover {
-            border-color: #a855f7;
+            border-color: #a855f7
         }
 
+        /* scrollbars */
         .left-content::-webkit-scrollbar {
-            width: 6px;
+            width: 6px
         }
 
         .left-content::-webkit-scrollbar-track {
-            background: #0a0a0a;
+            background: #0a0a0a
         }
 
         .left-content::-webkit-scrollbar-thumb {
             background: #2a2a2a;
-            border-radius: 3px;
+            border-radius: 3px
         }
 
         .left-content::-webkit-scrollbar-thumb:hover {
-            background: #404040;
+            background: #404040
+        }
+
+        /* Light mode overrides */
+        html[data-theme="light"] .ai-studio-wrapper {
+            background: #f8fafc
+        }
+
+        html[data-theme="light"] .left-sidebar {
+            background: #fff;
+            color: #111827;
+            border-right: 1px solid #e5e7eb
+        }
+
+        html[data-theme="light"] .top-tabs {
+            background: #fff;
+            border-bottom: 1px solid #e5e7eb
+        }
+
+        html[data-theme="light"] .tab-btn {
+            background: #fff;
+            border: 1px solid #d1d5db;
+            color: #374151
+        }
+
+        html[data-theme="light"] .tab-btn:hover {
+            background: #f3f4f6
+        }
+
+        html[data-theme="light"] .tab-btn.active {
+            background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);
+            color: #fff;
+            border-color: #7c3aed
+        }
+
+        html[data-theme="light"] .left-content {
+            background: #fff
+        }
+
+        html[data-theme="light"] .step-title {
+            color: #111827
+        }
+
+        html[data-theme="light"] .dropdown-label,
+        html[data-theme="light"] .config-label,
+        html[data-theme="light"] .prompt-label {
+            color: #374151
+        }
+
+        html[data-theme="light"] .dropdown-select {
+            background: #fff;
+            border-color: #d1d5db;
+            color: #111827
+        }
+
+        html[data-theme="light"] .shoot-type-pill {
+            background: #fff;
+            color: #374151;
+            border: 1px solid #d1d5db
+        }
+
+        html[data-theme="light"] .shoot-type-pill.active {
+            background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);
+            color: #fff;
+            border-color: #7c3aed
+        }
+
+        html[data-theme="light"] .model-slider-wrapper {
+            background: #fff;
+            border: 1px solid #d1d5db;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, .05)
+        }
+
+        html[data-theme="light"] .model-card {
+            background: #fff;
+            border-color: #e5e7eb
+        }
+
+        html[data-theme="light"] .model-card:hover {
+            border-color: #7c3aed
+        }
+
+        html[data-theme="light"] .model-card.selected {
+            border-color: #7c3aed;
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, .25)
+        }
+
+        html[data-theme="light"] .slider-btn {
+            background: #fff;
+            border: 1px solid #d1d5db;
+            color: #4b5563
+        }
+
+        html[data-theme="light"] .slider-btn:hover {
+            background: #7c3aed;
+            color: #fff
+        }
+
+        html[data-theme="light"] .prompt-textarea-wrapper {
+            background: #fff;
+            border-color: #7c3aed
+        }
+
+        html[data-theme="light"] .prompt-textarea {
+            color: #111827
+        }
+
+        html[data-theme="light"] .prompt-icon-btn {
+            background: #fff;
+            border-color: #d1d5db;
+            color: #374151
+        }
+
+        html[data-theme="light"] .prompt-icon-btn:hover {
+            background: #7c3aed;
+            color: #fff
+        }
+
+        html[data-theme="light"] .upload-area {
+            background: #f9fafb;
+            border-color: #d1d5db
+        }
+
+        html[data-theme="light"] .upload-placeholder .main-text,
+        html[data-theme="light"] .upload-placeholder .sub-text {
+            color: #374151
+        }
+
+        html[data-theme="light"] .ratio-option,
+        html[data-theme="light"] .format-option {
+            background: #fff;
+            border-color: #d1d5db;
+            color: #374151
+        }
+
+        html[data-theme="light"] .ratio-option.active,
+        html[data-theme="light"] .format-option.active {
+            background: #7c3aed;
+            color: #fff
+        }
+
+        html[data-theme="light"] .generate-section {
+            background: #fff;
+            border-top: 1px solid #e5e7eb
+        }
+
+        html[data-theme="light"] .play-btn {
+            background: #fff;
+            border: 1px solid #d1d5db;
+            color: #374151
+        }
+
+        html[data-theme="light"] .play-btn:hover {
+            background: #7c3aed;
+            color: #fff
+        }
+
+        html[data-theme="light"] .right-panel {
+            background: #f8fafc
+        }
+
+        html[data-theme="light"] .preview-area {
+            background: linear-gradient(135deg, rgba(124, 58, 237, .08), rgba(91, 33, 182, .08));
+            border-color: rgba(124, 58, 237, .3)
+        }
+
+        html[data-theme="light"] .preview-empty {
+            color: #374151
+        }
+
+        html[data-theme="light"] .btn-share {
+            background: #fff;
+            border: 1px solid #d1d5db;
+            color: #111827
         }
     </style>
 
     <div class="ai-studio-wrapper">
         <div class="left-sidebar">
             <div class="top-tabs">
-                <button class="tab-btn active" data-tab="photoshoot">
-                    <i class="bi bi-camera-fill"></i>
-                    Photoshoot
-                </button>
-                <button class="tab-btn" data-tab="creative">
-                    <i class="bi bi-stars"></i>
-                    Creative
-                </button>
+                <button class="tab-btn active" data-tab="photoshoot"><i class="bi bi-camera-fill"></i> Photoshoot</button>
+                <button class="tab-btn" data-tab="creative"><i class="bi bi-stars"></i> Creative</button>
             </div>
 
             <div class="left-content">
-                <!-- AI Photoshoot Tab -->
+                {{-- PHOTOSHOOT TAB --}}
                 <div class="tab-content active" id="photoshoot-tab">
                     <div class="step-section">
                         <div class="step-title">1. Select Your Style</div>
@@ -721,29 +894,29 @@
                     <div class="step-section">
                         <div class="step-title">3. Choose Model Design</div>
                         <div class="model-slider-wrapper">
-                            <button class="slider-btn left" id="photoshoot-modelPrevBtn">
-                                <i class="bi bi-chevron-left"></i>
-                            </button>
+                            <button class="slider-btn left" id="photoshoot-modelPrevBtn"><i
+                                    class="bi bi-chevron-left"></i></button>
                             <div class="model-slider" id="photoshoot-modelDesignsArea"></div>
-                            <button class="slider-btn right" id="photoshoot-modelNextBtn">
-                                <i class="bi bi-chevron-right"></i>
-                            </button>
+                            <button class="slider-btn right" id="photoshoot-modelNextBtn"><i
+                                    class="bi bi-chevron-right"></i></button>
                         </div>
                     </div>
 
                     <div class="step-section">
                         <div class="step-title">4. Upload Image & Configure</div>
-                        <p style="font-size: 12px; color: #6b7280; margin-bottom: 12px;">
-                            For best results, upload a clear, full product photo
-                        </p>
+                        <p style="font-size:12px;color:#6b7280;margin-bottom:12px">For best results, upload a clear, full
+                            product photo</p>
                         <div class="upload-area" id="photoshoot-uploadArea">
-                            <input type="file" id="photoshoot-imageInput" accept="image/jpeg,image/png,image/jpg" style="display:none;">
+                            <input type="file" id="photoshoot-imageInput" accept="image/jpeg,image/png,image/jpg"
+                                style="display:none">
                             <div class="upload-placeholder">
                                 <i class="bi bi-cloud-arrow-up"></i>
-                                <div class="main-text">Drop image or <span class="upload-link" id="photoshoot-browseLink">browse</span></div>
+                                <div class="main-text">Drop image or <span class="upload-link"
+                                        id="photoshoot-browseLink">browse</span></div>
                                 <div class="sub-text">Supports: PNG, JPG</div>
                             </div>
                         </div>
+
                         <div class="config-row">
                             <div class="config-group">
                                 <label class="config-label">Aspect Ratio</label>
@@ -756,6 +929,7 @@
                                 </div>
                             </div>
                         </div>
+
                         <div class="config-row">
                             <div class="config-group">
                                 <label class="config-label">Output Format</label>
@@ -768,20 +942,19 @@
                     </div>
                 </div>
 
-                <!-- Creative AI Tab -->
+                {{-- CREATIVE TAB --}}
                 <div class="tab-content" id="creative-tab">
                     <div class="step-section">
                         <div class="step-title">1. Describe Your Vision</div>
                         <label class="prompt-label">Enter your prompt</label>
                         <div class="prompt-textarea-wrapper">
-                            <textarea class="prompt-textarea" id="creative-promptInput" placeholder="e.g., A female model wearing the product, standing on a futuristic city street at night, neon lights reflecting..."></textarea>
+                            <textarea class="prompt-textarea" id="creative-promptInput"
+                                placeholder="e.g., A female model wearing the product, standing on a futuristic city street at night, neon lights reflecting..."></textarea>
                             <div class="prompt-actions">
-                                <button class="prompt-icon-btn" title="AI Enhance" id="creative-enhanceBtn">
-                                    <i class="bi bi-magic"></i>
-                                </button>
-                                <button class="prompt-icon-btn" title="Copy" id="creative-copyPromptBtn">
-                                    <i class="bi bi-clipboard"></i>
-                                </button>
+                                <button class="prompt-icon-btn" title="AI Enhance" id="creative-enhanceBtn"><i
+                                        class="bi bi-magic"></i></button>
+                                <button class="prompt-icon-btn" title="Copy" id="creative-copyPromptBtn"><i
+                                        class="bi bi-clipboard"></i></button>
                             </div>
                         </div>
                     </div>
@@ -790,13 +963,16 @@
                         <div class="step-title">2. Upload Image & Configure</div>
                         <p class="upload-description">For best results, upload a clear, full product photo.</p>
                         <div class="upload-area" id="creative-uploadArea">
-                            <input type="file" id="creative-imageInput" accept="image/jpeg,image/png,image/jpg" style="display:none;">
+                            <input type="file" id="creative-imageInput" accept="image/jpeg,image/png,image/jpg"
+                                style="display:none">
                             <div class="upload-placeholder">
                                 <i class="bi bi-cloud-arrow-up"></i>
-                                <div class="main-text">Drop image or <span class="upload-link" id="creative-browseLink">browse</span></div>
+                                <div class="main-text">Drop image or <span class="upload-link"
+                                        id="creative-browseLink">browse</span></div>
                                 <div class="sub-text">Supports: PNG, JPG</div>
                             </div>
                         </div>
+
                         <div class="config-row">
                             <label class="config-label">Aspect Ratio</label>
                             <div class="ratio-grid">
@@ -807,6 +983,7 @@
                                 <div class="ratio-option" data-ratio="9:16">9:16</div>
                             </div>
                         </div>
+
                         <div class="config-row">
                             <label class="config-label">Output Format</label>
                             <div class="format-grid">
@@ -816,18 +993,17 @@
                         </div>
                     </div>
                 </div>
-            </div>
+
+            </div> {{-- left-content --}}
 
             <div class="generate-section">
-                <button class="generate-btn" id="photoshoot-generateBtn" disabled>
+                <button class="generate-btn creative-disabled" id="photoshoot-generateBtn" disabled>
                     <i class="bi bi-stars"></i>
                     <span id="generateBtnText">Start Product Shoot</span>
                 </button>
-                <button class="play-btn" title="Quick Generate">
-                    <i class="bi bi-play-fill"></i>
-                </button>
+                <button class="play-btn" title="Quick Generate"><i class="bi bi-play-fill"></i></button>
             </div>
-        </div>
+        </div> {{-- left-sidebar --}}
 
         <div class="right-panel">
             <div class="preview-area" id="previewArea">
@@ -839,41 +1015,47 @@
         </div>
     </div>
 
+    {{-- Dependencies --}}
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Shared constants + helpers
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true
+            });
+            const isRoute = (r) => window.location.pathname.includes(r);
+
             // Tab switching
             document.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.addEventListener('click', function() {
                     const tab = this.dataset.tab;
-                    
-                    // Update tabs
-                    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove(
+                        'active'));
                     this.classList.add('active');
-                    
-                    // Update content
-                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove(
+                        'active'));
                     document.getElementById(tab + '-tab').classList.add('active');
-                    
-                    // Update generate button text
+
                     const generateBtnText = document.getElementById('generateBtnText');
-                    if (tab === 'photoshoot') {
-                        generateBtnText.textContent = 'Start Product Shoot';
-                    } else {
-                        generateBtnText.textContent = 'Generate Creative Image';
-                    }
-                    
-                    // Clear preview
+                    if (tab === 'photoshoot') generateBtnText.textContent = 'Start Product Shoot';
+                    else generateBtnText.textContent = 'Generate Creative Image';
+
+                    // reset preview
                     document.getElementById('previewArea').innerHTML = `
-                        <div class="preview-empty">
-                            <i class="bi bi-image"></i>
-                            <h6>Your AI-generated image will appear here.</h6>
-                        </div>
-                    `;
+        <div class="preview-empty"><i class="bi bi-image"></i><h6>Your AI-generated image will appear here.</h6></div>
+      `;
+                    updateGenerateState();
                 });
             });
 
-            // ========== AI PHOTOSHOOT LOGIC ==========
+            /* ==================
+               PHOTOSHOOT LOGIC
+               ================== */
             let photoshootData = {
                 uploadedImagePath: null,
                 selectedModelDesign: null,
@@ -883,44 +1065,58 @@
                 allModelDesigns: @json($modelDesigns ?? [])
             };
 
-            // Load model designs
             function loadModelDesigns(shootType) {
                 const area = document.getElementById('photoshoot-modelDesignsArea');
-                const categoryMap = {
+                const map = {
                     'Classic': 'classic',
                     'Lifestyle': 'lifestyle',
                     'Luxury': 'luxury',
                     'Outdoor': 'outdoor'
                 };
-                const filtered = photoshootData.allModelDesigns.filter(m =>
-                    m.category.toLowerCase() === categoryMap[shootType].toLowerCase()
-                );
+                const filtered = photoshootData.allModelDesigns.filter(m => (m.category || '').toLowerCase() === (
+                    map[shootType] || '').toLowerCase());
                 area.innerHTML = '';
                 if (filtered.length === 0) {
-                    area.innerHTML = `<div style="color:#6b7280;font-size:14px">No models available</div>`;
+                    // show placeholders as per screenshot: three cards + arrows
+                    for (let i = 0; i < 3; i++) {
+                        const placeholder = document.createElement('div');
+                        placeholder.className = 'model-card';
+                        placeholder.innerHTML =
+                            `<img src="${i%2===0?'/storage/demo1.jpg':'/storage/demo2.jpg'}" alt="placeholder">`;
+                        area.appendChild(placeholder);
+                    }
                     return;
                 }
-                filtered.forEach(model => {
+                filtered.forEach((model, idx) => {
                     const card = document.createElement('div');
                     card.className = 'model-card';
                     card.dataset.modelId = model.id;
                     card.innerHTML = `<img src="${model.thumbnail}" alt="${model.name}">`;
                     card.addEventListener('click', function() {
-                        document.querySelectorAll('#photoshoot-modelDesignsArea .model-card').forEach(c => c.classList.remove('selected'));
+                        document.querySelectorAll('#photoshoot-modelDesignsArea .model-card')
+                            .forEach(c => c.classList.remove('selected'));
                         this.classList.add('selected');
                         photoshootData.selectedModelDesign = model.id;
                         checkPhotoshootFormValid();
                     });
                     area.appendChild(card);
-                });
-            }
 
+                    // auto-select first card so button can enable after upload
+                    if (idx === 0 && !photoshootData.selectedModelDesign) {
+                        card.classList.add('selected');
+                        photoshootData.selectedModelDesign = model.id;
+                    }
+                });
+
+                checkPhotoshootFormValid();
+            }
             loadModelDesigns(photoshootData.selectedShootType);
 
-            // Shoot type selection
+            // shoot type pills
             document.querySelectorAll('#photoshoot-tab .shoot-type-pill').forEach(pill => {
                 pill.addEventListener('click', function() {
-                    document.querySelectorAll('#photoshoot-tab .shoot-type-pill').forEach(p => p.classList.remove('active'));
+                    document.querySelectorAll('#photoshoot-tab .shoot-type-pill').forEach(p => p
+                        .classList.remove('active'));
                     this.classList.add('active');
                     photoshootData.selectedShootType = this.dataset.type;
                     photoshootData.selectedModelDesign = null;
@@ -929,25 +1125,27 @@
                 });
             });
 
-            // Ratio and format selection for photoshoot
+            // ratio / format selection (photoshoot)
             document.querySelectorAll('#photoshoot-tab .ratio-option').forEach(option => {
                 option.addEventListener('click', function() {
-                    document.querySelectorAll('#photoshoot-tab .ratio-option').forEach(o => o.classList.remove('active'));
+                    document.querySelectorAll('#photoshoot-tab .ratio-option').forEach(o => o
+                        .classList.remove('active'));
                     this.classList.add('active');
                     photoshootData.selectedRatio = this.dataset.ratio;
                 });
             });
-
             document.querySelectorAll('#photoshoot-tab .format-option').forEach(option => {
                 option.addEventListener('click', function() {
-                    document.querySelectorAll('#photoshoot-tab .format-option').forEach(o => o.classList.remove('active'));
+                    document.querySelectorAll('#photoshoot-tab .format-option').forEach(o => o
+                        .classList.remove('active'));
                     this.classList.add('active');
                     photoshootData.selectedFormat = this.dataset.format;
                 });
             });
 
-            // Photoshoot upload
-            document.getElementById('photoshoot-uploadArea').addEventListener('click', () => document.getElementById('photoshoot-imageInput').click());
+            // upload handlers (photoshoot)
+            document.getElementById('photoshoot-uploadArea').addEventListener('click', () => document
+                .getElementById('photoshoot-imageInput').click());
             document.getElementById('photoshoot-browseLink').addEventListener('click', (e) => {
                 e.stopPropagation();
                 document.getElementById('photoshoot-imageInput').click();
@@ -957,125 +1155,216 @@
                 const file = e.target.files[0];
                 if (!file) return;
                 if (file.size > 10 * 1024 * 1024) {
-                    Toast.fire({ icon: 'error', title: 'File size must be less than 10MB' });
+                    Toast.fire({
+                        icon: 'error',
+                        title: 'File size must be less than 10MB'
+                    });
                     return;
                 }
-                const formData = new FormData();
-                formData.append('image', file);
-                Swal.fire({ title: 'Uploading...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-                fetch('{{ route('ai.photoshoot.upload') }}', {
-                    method: 'POST',
-                    headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-                    body: formData
-                })
-                .then(res => res.json())
-                .then(data => {
-                    Swal.close();
-                    if (data.success) {
-                        photoshootData.uploadedImagePath = data.path;
-                        const uploadArea = document.getElementById('photoshoot-uploadArea');
-                        uploadArea.classList.add('has-file');
-                        uploadArea.innerHTML = `<img src="${data.url}" class="upload-preview-img" alt="Uploaded">`;
-                        Toast.fire({ icon: 'success', title: 'Image uploaded!' });
-                        checkPhotoshootFormValid();
-                    } else {
-                        Toast.fire({ icon: 'error', title: data.message || 'Upload failed' });
-                    }
-                })
-                .catch(() => {
-                    Swal.close();
-                    Toast.fire({ icon: 'error', title: 'Upload failed' });
+                const fd = new FormData();
+                fd.append('image', file);
+                Swal.fire({
+                    title: 'Uploading...',
+                    allowOutsideClick: false,
+                    didOpen: () => Swal.showLoading()
                 });
+                fetch('{{ route('ai.photoshoot.upload') }}', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: fd
+                    })
+                    .then(r => r.json()).then(data => {
+                        Swal.close();
+                        if (data.success) {
+                            photoshootData.uploadedImagePath = data.path;
+                            const uploadArea = document.getElementById('photoshoot-uploadArea');
+                            uploadArea.classList.add('has-file');
+                            uploadArea.innerHTML =
+                                `<img src="${data.url}" class="upload-preview-img" alt="Uploaded">`;
+                            Toast.fire({
+                                icon: 'success',
+                                title: 'Image uploaded!'
+                            });
+                            checkPhotoshootFormValid();
+                        } else {
+                            Toast.fire({
+                                icon: 'error',
+                                title: data.message || 'Upload failed'
+                            });
+                        }
+                    }).catch(err => {
+                        Swal.close();
+                        Toast.fire({
+                            icon: 'error',
+                            title: 'Upload failed'
+                        });
+                    });
             });
 
-            // Photoshoot generate
+            // photoshoot generate
             document.getElementById('photoshoot-generateBtn').addEventListener('click', function() {
-                if (!photoshootData.uploadedImagePath || !photoshootData.selectedModelDesign) {
-                    Toast.fire({ icon: 'warning', title: 'Please complete all steps' });
-                    return;
-                }
-                const data = {
-                    industry: document.getElementById('photoshoot-industry').value,
-                    category: document.getElementById('photoshoot-category').value,
-                    product_type: document.getElementById('photoshoot-productType').value,
-                    shoot_type: photoshootData.selectedShootType,
-                    model_design_id: photoshootData.selectedModelDesign,
-                    uploaded_image: photoshootData.uploadedImagePath,
-                    aspect_ratio: photoshootData.selectedRatio,
-                    output_format: photoshootData.selectedFormat,
-                };
-                Swal.fire({ title: 'Generating...', html: 'Creating your perfect shot', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-                fetch('{{ route('ai.photoshoot.start') }}', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-                    body: JSON.stringify(data)
-                })
-                .then(res => res.json())
-                .then(result => {
-                    Swal.close();
-                    if (result.success) {
-                        Toast.fire({ icon: 'success', title: 'Photo shoot completed!' });
-                        displayResult(result.shoot, 'photoshoot');
-                    } else {
-                        Toast.fire({ icon: 'error', title: result.message || 'Generation failed' });
+                const activeTab = document.querySelector('.tab-content.active').id;
+
+                // -------------------------------------
+                // PHOTOSHOOT GENERATION
+                // -------------------------------------
+                if (activeTab === 'photoshoot-tab') {
+
+                    if (!photoshootData.uploadedImagePath || !photoshootData.selectedModelDesign) {
+                        Toast.fire({
+                            icon: 'warning',
+                            title: 'Please complete all steps'
+                        });
+                        return;
                     }
-                })
-                .catch(error => {
-                    Swal.close();
-                    Toast.fire({ icon: 'error', title: 'Generation failed' });
-                });
+
+                    const payload = {
+                        industry: document.getElementById('photoshoot-industry').value,
+                        category: document.getElementById('photoshoot-category').value,
+                        product_type: document.getElementById('photoshoot-productType').value,
+                        shoot_type: photoshootData.selectedShootType,
+                        model_design_id: photoshootData.selectedModelDesign,
+                        uploaded_image: photoshootData.uploadedImagePath,
+                        aspect_ratio: photoshootData.selectedRatio,
+                        output_format: photoshootData.selectedFormat
+                    };
+
+                    Swal.fire({
+                        title: 'Generating...',
+                        html: 'Creating your perfect shot',
+                        allowOutsideClick: false,
+                        didOpen: () => Swal.showLoading()
+                    });
+
+                    fetch("{{ route('ai.photoshoot.start') }}", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                            },
+                            body: JSON.stringify(payload)
+                        })
+                        .then(r => r.json())
+                        .then(result => {
+                            Swal.close();
+                            if (result.success) {
+                                Toast.fire({
+                                    icon: 'success',
+                                    title: 'Photo shoot completed!'
+                                });
+                                displayResult(result.shoot, 'photoshoot');
+                            } else {
+                                Toast.fire({
+                                    icon: 'error',
+                                    title: result.message || 'Generation failed'
+                                });
+                            }
+                        });
+                }
+
+                // -------------------------------------
+                // CREATIVE GENERATION
+                // -------------------------------------
+                if (activeTab === 'creative-tab') {
+
+                    const prompt = creativePromptInput.value.trim();
+
+                    if (!prompt || prompt.length < 10) {
+                        Toast.fire({
+                            icon: 'warning',
+                            title: 'Please enter a detailed prompt (min 10 chars)'
+                        });
+                        return;
+                    }
+
+                    const payload = {
+                        prompt: prompt,
+                        uploaded_image: creativeData.uploadedImagePath,
+                        aspect_ratio: creativeData.selectedRatio,
+                        output_format: creativeData.selectedFormat
+                    };
+
+                    Swal.fire({
+                        title: 'Generating Creative Image...',
+                        html: 'AI is creating your image',
+                        allowOutsideClick: false,
+                        didOpen: () => Swal.showLoading()
+                    });
+
+                    fetch("{{ route('creative.ai.generate') }}", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                            },
+                            body: JSON.stringify(payload)
+                        })
+                        .then(r => r.json())
+                        .then(result => {
+                            Swal.close();
+                            if (result.success) {
+                                Toast.fire({
+                                    icon: 'success',
+                                    title: 'Image generated!'
+                                });
+                                displayResult(result.generation, 'creative');
+                            } else {
+                                Toast.fire({
+                                    icon: 'error',
+                                    title: result.message || 'Generation failed'
+                                });
+                            }
+                        });
+                }
             });
+
 
             function checkPhotoshootFormValid() {
-                document.getElementById('photoshoot-generateBtn').disabled = !(photoshootData.uploadedImagePath && photoshootData.selectedModelDesign);
+                document.getElementById('photoshoot-generateBtn').disabled = !(photoshootData.uploadedImagePath &&
+                    photoshootData.selectedModelDesign);
             }
 
-            // Model slider buttons
-            document.getElementById('photoshoot-modelPrevBtn')?.addEventListener('click', () => {
-                document.getElementById('photoshoot-modelDesignsArea').scrollLeft -= 180;
-            });
-            document.getElementById('photoshoot-modelNextBtn')?.addEventListener('click', () => {
-                document.getElementById('photoshoot-modelDesignsArea').scrollLeft += 180;
-            });
+            // slider arrows
+            document.getElementById('photoshoot-modelPrevBtn')?.addEventListener('click', () => document
+                .getElementById('photoshoot-modelDesignsArea').scrollLeft -= 180);
+            document.getElementById('photoshoot-modelNextBtn')?.addEventListener('click', () => document
+                .getElementById('photoshoot-modelDesignsArea').scrollLeft += 180);
 
-            // ========== CREATIVE AI LOGIC ==========
+            /* ==================
+               CREATIVE LOGIC
+               ================== */
             let creativeData = {
                 uploadedImagePath: null,
                 selectedRatio: '1:1',
                 selectedFormat: 'JPEG'
             };
-
-            const Toast = Swal.mixin({
-                toast: true,
-                position: 'top-end',
-                showConfirmButton: false,
-                timer: 3000,
-                timerProgressBar: true,
-            });
-
-            // Prompt input validation
             const creativePromptInput = document.getElementById('creative-promptInput');
+
             creativePromptInput.addEventListener('input', checkCreativeFormValid);
 
-            // Ratio and format selection for creative
+            // ratio/format creative
             document.querySelectorAll('#creative-tab .ratio-option').forEach(option => {
                 option.addEventListener('click', function() {
-                    document.querySelectorAll('#creative-tab .ratio-option').forEach(o => o.classList.remove('active'));
+                    document.querySelectorAll('#creative-tab .ratio-option').forEach(o => o
+                        .classList.remove('active'));
                     this.classList.add('active');
                     creativeData.selectedRatio = this.dataset.ratio;
                 });
             });
-
             document.querySelectorAll('#creative-tab .format-option').forEach(option => {
                 option.addEventListener('click', function() {
-                    document.querySelectorAll('#creative-tab .format-option').forEach(o => o.classList.remove('active'));
+                    document.querySelectorAll('#creative-tab .format-option').forEach(o => o
+                        .classList.remove('active'));
                     this.classList.add('active');
                     creativeData.selectedFormat = this.dataset.format;
                 });
             });
 
-            // Creative upload
-            document.getElementById('creative-uploadArea').addEventListener('click', () => document.getElementById('creative-imageInput').click());
+            // creative upload
+            document.getElementById('creative-uploadArea').addEventListener('click', () => document.getElementById(
+                'creative-imageInput').click());
             document.getElementById('creative-browseLink').addEventListener('click', (e) => {
                 e.stopPropagation();
                 document.getElementById('creative-imageInput').click();
@@ -1085,94 +1374,136 @@
                 const file = e.target.files[0];
                 if (!file) return;
                 if (file.size > 10 * 1024 * 1024) {
-                    Toast.fire({ icon: 'error', title: 'File size must be less than 10MB' });
+                    Toast.fire({
+                        icon: 'error',
+                        title: 'File size must be less than 10MB'
+                    });
                     return;
                 }
-                const formData = new FormData();
-                formData.append('image', file);
-                Swal.fire({ title: 'Uploading...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-                fetch('{{ route('creative.ai.upload') }}', {
-                    method: 'POST',
-                    headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-                    body: formData
-                })
-                .then(res => res.json())
-                .then(data => {
-                    Swal.close();
-                    if (data.success) {
-                        creativeData.uploadedImagePath = data.path;
-                        const uploadArea = document.getElementById('creative-uploadArea');
-                        uploadArea.classList.add('has-file');
-                        uploadArea.innerHTML = `<img src="${data.url}" class="upload-preview-img" alt="Uploaded">`;
-                        Toast.fire({ icon: 'success', title: 'Image uploaded!' });
-                        checkCreativeFormValid();
-                    } else {
-                        Toast.fire({ icon: 'error', title: data.message || 'Upload failed' });
-                    }
-                })
-                .catch(() => {
-                    Swal.close();
-                    Toast.fire({ icon: 'error', title: 'Upload failed' });
+                const fd = new FormData();
+                fd.append('image', file);
+                Swal.fire({
+                    title: 'Uploading...',
+                    allowOutsideClick: false,
+                    didOpen: () => Swal.showLoading()
                 });
+                fetch('{{ route('creative.ai.upload') }}', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: fd
+                    })
+                    .then(r => r.json()).then(data => {
+                        Swal.close();
+                        if (data.success) {
+                            creativeData.uploadedImagePath = data.path;
+                            const uploadArea = document.getElementById('creative-uploadArea');
+                            uploadArea.classList.add('has-file');
+                            uploadArea.innerHTML =
+                                `<img src="${data.url}" class="upload-preview-img" alt="Uploaded">`;
+                            Toast.fire({
+                                icon: 'success',
+                                title: 'Image uploaded!'
+                            });
+                            checkCreativeFormValid();
+                        } else {
+                            Toast.fire({
+                                icon: 'error',
+                                title: data.message || 'Upload failed'
+                            });
+                        }
+                    }).catch(() => {
+                        Swal.close();
+                        Toast.fire({
+                            icon: 'error',
+                            title: 'Upload failed'
+                        });
+                    });
             });
 
-            // Copy prompt
+            // copy / enhance prompt
             document.getElementById('creative-copyPromptBtn').addEventListener('click', function() {
                 const prompt = creativePromptInput.value;
                 if (prompt) {
                     navigator.clipboard.writeText(prompt);
-                    Toast.fire({ icon: 'success', title: 'Prompt copied!' });
+                    Toast.fire({
+                        icon: 'success',
+                        title: 'Prompt copied!'
+                    })
                 }
             });
-
-            // Enhance prompt
             document.getElementById('creative-enhanceBtn').addEventListener('click', function() {
-                const currentPrompt = creativePromptInput.value.trim();
-                if (!currentPrompt) {
-                    Toast.fire({ icon: 'warning', title: 'Please enter a prompt first' });
+                const cur = creativePromptInput.value.trim();
+                if (!cur) {
+                    Toast.fire({
+                        icon: 'warning',
+                        title: 'Please enter a prompt first'
+                    });
                     return;
                 }
-                const enhanced = `${currentPrompt}, ultra detailed, professional photography, high quality, 8k resolution, cinematic lighting`;
-                creativePromptInput.value = enhanced;
-                Toast.fire({ icon: 'success', title: 'Prompt enhanced!' });
+                creativePromptInput.value =
+                    `${cur}, ultra detailed, professional photography, high quality, 8k resolution, cinematic lighting`;
+                Toast.fire({
+                    icon: 'success',
+                    title: 'Prompt enhanced!'
+                });
                 checkCreativeFormValid();
             });
 
-            // Creative generate
-            const creativeGenerateBtn = document.getElementById('photoshoot-generateBtn');
-            creativeGenerateBtn.addEventListener('click', function() {
+            // creative generate uses same button as photoshoot but checks active tab
+            // handled above in photoshoot generate click by checking activeTab === 'creative-tab'
+            // update: attach same handler separately for safety
+            document.getElementById('photoshoot-generateBtn').addEventListener('click', function() {
                 const activeTab = document.querySelector('.tab-content.active').id;
                 if (activeTab === 'creative-tab') {
                     const prompt = creativePromptInput.value.trim();
                     if (!prompt || prompt.length < 10) {
-                        Toast.fire({ icon: 'warning', title: 'Please enter a detailed prompt (min 10 characters)' });
+                        Toast.fire({
+                            icon: 'warning',
+                            title: 'Please enter a detailed prompt (min 10 characters)'
+                        });
                         return;
                     }
-                    const data = {
+                    const payload = {
                         prompt: prompt,
                         uploaded_image: creativeData.uploadedImagePath,
                         aspect_ratio: creativeData.selectedRatio,
-                        output_format: creativeData.selectedFormat,
+                        output_format: creativeData.selectedFormat
                     };
-                    Swal.fire({ title: 'Generating Creative Image...', html: 'Please wait while AI creates your vision', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+                    Swal.fire({
+                        title: 'Generating Creative Image...',
+                        html: 'Please wait while AI creates your vision',
+                        allowOutsideClick: false,
+                        didOpen: () => Swal.showLoading()
+                    });
                     fetch('{{ route('creative.ai.generate') }}', {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-                        body: JSON.stringify(data)
-                    })
-                    .then(res => res.json())
-                    .then(result => {
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify(payload)
+                    }).then(r => r.json()).then(result => {
                         Swal.close();
                         if (result.success) {
-                            Toast.fire({ icon: 'success', title: 'Image generated!' });
+                            Toast.fire({
+                                icon: 'success',
+                                title: 'Image generated!'
+                            });
                             displayResult(result.generation, 'creative');
                         } else {
-                            Toast.fire({ icon: 'error', title: result.message || 'Generation failed' });
+                            Toast.fire({
+                                icon: 'error',
+                                title: result.message || 'Generation failed'
+                            });
                         }
-                    })
-                    .catch(err => {
+                    }).catch(() => {
                         Swal.close();
-                        Toast.fire({ icon: 'error', title: 'Generation failed' });
+                        Toast.fire({
+                            icon: 'error',
+                            title: 'Generation failed'
+                        });
                     });
                 }
             });
@@ -1193,90 +1524,46 @@
                 }
             }
 
+            // update generate button state when switching tabs or on changes
+            function updateGenerateState() {
+                const activeTab = document.querySelector('.tab-content.active').id;
+                const btn = document.getElementById('photoshoot-generateBtn');
+                if (activeTab === 'photoshoot') {
+                    checkPhotoshootFormValid();
+                    btn.classList.remove('creative-enabled');
+                    btn.classList.remove('creative-disabled');
+                } else {
+                    checkCreativeFormValid();
+                }
+            }
+
+            // common display result
             function displayResult(result, type) {
                 const area = document.getElementById('previewArea');
-                const imageUrl = result.generated_images && result.generated_images[0] ? result.generated_images[0] : '/placeholder.jpg';
-                const id = result.id;
-                const downloadRoute = type === 'photoshoot' ? `/ai-photoshoot/download/${id}` : `/creative-ai/download/${id}`;
-                
+                const imageUrl = (result && result.generated_images && result.generated_images[0]) ? result
+                    .generated_images[0] : '/placeholder.jpg';
+                const id = result && result.id ? result.id : '0';
+                const downloadRoute = type === 'photoshoot' ? `/ai-photoshoot/download/${id}` :
+                    `/creative-ai/download/${id}`;
                 area.innerHTML = `
-                    <div class="preview-image-container">
-                        <div class="preview-success-badge">
-                            <i class="bi bi-check-circle-fill"></i>
-                            Image generated successfully!
-                        </div>
-                        <div class="preview-image">
-                            <img src="${imageUrl}" alt="Generated">
-                        </div>
-                        <div class="preview-actions">
-                            <button class="preview-btn btn-download" onclick="window.location.href='${downloadRoute}'">
-                                <i class="bi bi-download"></i>
-                                Download
-                            </button>
-                            <button class="preview-btn btn-share">
-                                <i class="bi bi-share"></i>
-                                Share
-                            </button>
-                        </div>
-                    </div>
-                `;
+      <div class="preview-image-container">
+        <div class="preview-success-badge"><i class="bi bi-check-circle-fill"></i> Image generated successfully!</div>
+        <div class="preview-image"><img src="${imageUrl}" alt="Generated"></div>
+        <div class="preview-actions">
+          <button class="preview-btn btn-download" onclick="window.location.href='${downloadRoute}'"><i class="bi bi-download"></i> Download</button>
+          <button class="preview-btn btn-share"><i class="bi bi-share"></i> Share</button>
+        </div>
+      </div>
+    `;
             }
 
-            // Update generate button state based on active tab
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const tab = this.dataset.tab;
-                    const generateBtn = document.getElementById('photoshoot-generateBtn');
-                    if (tab === 'photoshoot') {
-                        checkPhotoshootFormValid();
-                        generateBtn.classList.remove('creative-disabled', 'creative-enabled');
-                    } else {
-                        checkCreativeFormValid();
-                    }
-                });
-            });
+            // set initial state (force light for creative if needed)
+            // if you want to always show creative in light mode, set attribute here
+            // document.documentElement.setAttribute('data-theme','light');
+
+            // small safety: update button states on load
+            updateGenerateState();
         });
-
-        // Force Light Mode for Creative AI - Always start in light mode on page load
-        (function() {
-            'use strict';
-            const isCreativeAIRoute = window.location.pathname.includes('/creative-ai') || 
-                                      window.location.pathname === '/creative-ai';
-            
-            if (isCreativeAIRoute) {
-                // Set light mode immediately (runs before other scripts)
-                if (document.documentElement) {
-                    document.documentElement.setAttribute('data-theme', 'light');
-                }
-                
-                // Intercept localStorage.getItem to return 'light' for Creative AI on initial load
-                const originalGetItem = Storage.prototype.getItem;
-                let creativeAIThemeInitialized = false;
-                
-                Storage.prototype.getItem = function(key) {
-                    if (key === 'theme' && isCreativeAIRoute && !creativeAIThemeInitialized) {
-                        creativeAIThemeInitialized = true;
-                        return 'light'; // Always return light for Creative AI on first load
-                    }
-                    return originalGetItem.call(this, key);
-                };
-                
-                // After DOM loads, ensure light mode is set and update icon
-                document.addEventListener('DOMContentLoaded', function() {
-                    // Force light mode
-                    document.documentElement.setAttribute('data-theme', 'light');
-                    
-                    // Update theme icon
-                    setTimeout(() => {
-                        const themeIcon = document.getElementById('theme-icon');
-                        if (themeIcon) {
-                            themeIcon.classList.remove('fa-moon');
-                            themeIcon.classList.add('fa-sun');
-                        }
-                    }, 100);
-                });
-            }
-        })();
     </script>
-@endsection
 
+@endsection

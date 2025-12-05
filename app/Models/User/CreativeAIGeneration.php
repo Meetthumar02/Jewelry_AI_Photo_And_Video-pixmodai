@@ -26,6 +26,7 @@ class CreativeAIGeneration extends Model
         'credits_used',
         'status',
         'error_message',
+        'service_response'
     ];
 
     protected $casts = [

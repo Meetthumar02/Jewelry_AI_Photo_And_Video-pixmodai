@@ -488,14 +488,14 @@
         }
 
         /* ===========================================================
-                               THEME SYSTEM — DEFAULT LIGHT MODE
-                               This layer overrides your old dark-only CSS with light mode.
-                               No original rules removed.
-                               ===========================================================*/
+                                   THEME SYSTEM — DEFAULT LIGHT MODE
+                                   This layer overrides your old dark-only CSS with light mode.
+                                   No original rules removed.
+                                   ===========================================================*/
 
         /* -----------------------------
-                               DEFAULT = LIGHT THEME
-                               ----------------------------- */
+                                   DEFAULT = LIGHT THEME
+                                   ----------------------------- */
         html {
             --bg-main: #ffffff;
             --bg-sidebar: #ffffff;
