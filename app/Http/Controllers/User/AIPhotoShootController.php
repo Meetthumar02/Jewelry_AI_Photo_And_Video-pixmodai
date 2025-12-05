@@ -18,77 +18,71 @@ class AIPhotoShootController extends Controller
 
         $isSubscribed = strtolower($user->is_subscribed ?? 'false') === 'true';
 
-        $previousShoots = AIPhotoShoot::forUser($userId)
-            ->latest()
-            ->take(10)
-            ->get();
+        $previousShoots = AIPhotoShoot::forUser($userId)->latest()->take(10)->get();
 
         $modelDesigns = $this->getModelDesigns();
 
-        return view('user.ai_studio', compact(
-            'isSubscribed',
-            'previousShoots',
-            'modelDesigns'
-        ));
+        return view('user.ai_studio', compact('isSubscribed', 'previousShoots', 'modelDesigns'));
     }
 
     private function getModelDesigns()
     {
         return [
-            ['id'=>'classic_model_1','name'=>'Classic Model 1','thumbnail'=>'https://picsum.photos/id/237/200/300','category'=>'classic'],
-            ['id'=>'classic_model_2','name'=>'Classic Model 2','thumbnail'=>'https://picsum.photos/seed/picsum/200/300','category'=>'classic'],
-             ['id'=>'classic_model_1','name'=>'Classic Model 1','thumbnail'=>'https://picsum.photos/id/237/200/300','category'=>'classic'],
-            ['id'=>'classic_model_2','name'=>'Classic Model 2','thumbnail'=>'https://picsum.photos/seed/picsum/200/300','category'=>'classic'],
-            ['id'=>'lifestyle_model_1','name'=>'Lifestyle Model 1','thumbnail'=>'https://picsum.photos/200/300?grayscale','category'=>'lifestyle'],
-            ['id'=>'lifestyle_model_2','name'=>'Lifestyle Model 2','thumbnail'=>'https://picsum.photos/200/300/?blur','category'=>'lifestyle'],
-            ['id'=>'luxury_model_1','name'=>'Luxury Model 1','thumbnail'=>'https://picsum.photos/id/870/200/300?grayscale&blur=2','category'=>'luxury'],
-            ['id'=>'luxury_model_2','name'=>'Luxury Model 2','thumbnail'=>'https://picsum.photos/id/237/200/300','category'=>'luxury'],
-            ['id'=>'outdoor_model_1','name'=>'Outdoor Model 1','thumbnail'=>'https://picsum.photos/seed/picsum/200/300','category'=>'outdoor'],
-            ['id'=>'outdoor_model_2','name'=>'Outdoor Model 2','thumbnail'=>'https://picsum.photos/seed/picsum/200/300','category'=>'outdoor'],
+            ['id' => 'classic_model_1', 'name' => 'Classic Model 1', 'thumbnail' => 'https://picsum.photos/id/237/200/300', 'category' => 'classic'],
+            ['id' => 'classic_model_2', 'name' => 'Classic Model 2', 'thumbnail' => 'https://picsum.photos/seed/picsum/200/300', 'category' => 'classic'],
+            ['id' => 'classic_model_1', 'name' => 'Classic Model 1', 'thumbnail' => 'https://picsum.photos/id/237/200/300', 'category' => 'classic'],
+            ['id' => 'classic_model_2', 'name' => 'Classic Model 2', 'thumbnail' => 'https://picsum.photos/seed/picsum/200/300', 'category' => 'classic'],
+            ['id' => 'lifestyle_model_1', 'name' => 'Lifestyle Model 1', 'thumbnail' => 'https://picsum.photos/200/300?grayscale', 'category' => 'lifestyle'],
+            ['id' => 'lifestyle_model_2', 'name' => 'Lifestyle Model 2', 'thumbnail' => 'https://picsum.photos/200/300/?blur', 'category' => 'lifestyle'],
+            ['id' => 'luxury_model_1', 'name' => 'Luxury Model 1', 'thumbnail' => 'https://picsum.photos/id/870/200/300?grayscale&blur=2', 'category' => 'luxury'],
+            ['id' => 'luxury_model_2', 'name' => 'Luxury Model 2', 'thumbnail' => 'https://picsum.photos/id/237/200/300', 'category' => 'luxury'],
+            ['id' => 'outdoor_model_1', 'name' => 'Outdoor Model 1', 'thumbnail' => 'https://picsum.photos/seed/picsum/200/300', 'category' => 'outdoor'],
+            ['id' => 'outdoor_model_2', 'name' => 'Outdoor Model 2', 'thumbnail' => 'https://picsum.photos/seed/picsum/200/300', 'category' => 'outdoor'],
         ];
     }
 
-  public function uploadImage(Request $request)
-{
-    $request->validate([
-        'image' => 'required|image|mimes:jpeg,png,jpg|max:10240',
-    ]);
-
-    try {
-        $file = $request->file('image');
-
-        $size = $file->getSize();
-        $mime = $file->getMimeType();
-
-        $filename = 'photoshoot_' . time() . '_' . Str::random(10) . '.' . $file->getClientOriginalExtension();
-
-        $destinationPath = public_path('upload/uploads');
-
-        if (!file_exists($destinationPath)) {
-            mkdir($destinationPath, 0775, true);
-        }
-
-        $file->move($destinationPath, $filename);
-
-        $relativePath = 'upload/uploads/' . $filename;
-
-        return response()->json([
-            'success'   => true,
-            'path'      => $relativePath,
-            'url'       => asset($relativePath),
-            'filename'  => $filename,
-            'size'      => $size,
-            'mime_type' => $mime,
+    public function uploadImage(Request $request)
+    {
+        $request->validate([
+            'image' => 'required|image|mimes:jpeg,png,jpg|max:10240',
         ]);
 
-    } catch (\Exception $e) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Failed to upload image: ' . $e->getMessage(),
-        ], 500);
-    }
-}
+        try {
+            $file = $request->file('image');
 
+            $size = $file->getSize();
+            $mime = $file->getMimeType();
+
+            $filename = 'photoshoot_' . time() . '_' . Str::random(10) . '.' . $file->getClientOriginalExtension();
+
+            $destinationPath = public_path('upload/uploads');
+
+            if (!file_exists($destinationPath)) {
+                mkdir($destinationPath, 0775, true);
+            }
+
+            $file->move($destinationPath, $filename);
+
+            $relativePath = 'upload/uploads/' . $filename;
+
+            return response()->json([
+                'success' => true,
+                'path' => $relativePath,
+                'url' => asset($relativePath),
+                'filename' => $filename,
+                'size' => $size,
+                'mime_type' => $mime,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(
+                [
+                    'success' => false,
+                    'message' => 'Failed to upload image: ' . $e->getMessage(),
+                ],
+                500,
+            );
+        }
+    }
 
     public function startShoot(Request $request)
     {
@@ -107,7 +101,7 @@ class AIPhotoShootController extends Controller
         $creditsNeeded = 20;
 
         if ($user->total_credits < $creditsNeeded) {
-            return response()->json(['success'=>false,'message'=>'Not enough credits'],400);
+            return response()->json(['success' => false, 'message' => 'Not enough credits'], 400);
         }
 
         $shoot = AIPhotoShoot::create([
@@ -129,16 +123,12 @@ class AIPhotoShootController extends Controller
         $this->generatePhotos($shoot);
         $shoot->refresh();
 
-        return response()->json(['success'=>true,'shoot'=>$shoot]);
+        return response()->json(['success' => true, 'shoot' => $shoot]);
     }
 
     private function generatePhotos($shoot)
     {
         sleep(2);
-
-        // Resolve the uploaded image path. Uploads are currently saved under /public/upload/uploads,
-        // while the code originally expected storage/app/public. Try storage first, then fall back
-        // to the public path so we don't mark the shoot as failed unnecessarily.
         $uploadPath = storage_path('app/public/' . $shoot->uploaded_image);
         if (!file_exists($uploadPath)) {
             $publicPath = public_path($shoot->uploaded_image);
@@ -192,19 +182,21 @@ class AIPhotoShootController extends Controller
         if (is_array($shoot->generated_images)) {
             foreach ($shoot->generated_images as $img) {
                 $file = public_path($img);
-                if (file_exists($file)) unlink($file);
+                if (file_exists($file)) {
+                    unlink($file);
+                }
             }
         }
 
         $shoot->delete();
 
-        return response()->json(['success'=>true]);
+        return response()->json(['success' => true]);
     }
 
     public function history()
     {
         $shoots = AIPhotoShoot::forUser(Auth::id())->latest()->paginate(12);
 
-        return response()->json(['success'=>true,'shoots'=>$shoots]);
+        return response()->json(['success' => true, 'shoots' => $shoots]);
     }
 }

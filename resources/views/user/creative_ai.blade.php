@@ -27,11 +27,9 @@
             flex-direction: column;
         }
 
-        /* TOP TABS */
         .top-tabs {
             display: flex;
             gap: 12px;
-            /* space between buttons */
             padding: 12px 20px;
             border-bottom: 1px solid #1f1f1f;
             background: #0a0a0a;
@@ -39,16 +37,13 @@
 
         .tab-btn {
             padding: 6px 16px;
-            /* smaller height */
             background: transparent;
             border: 1px solid #3a3a3a;
-            /* small border */
             color: #9ca3af;
             font-size: 13px;
             font-weight: 500;
             cursor: pointer;
             border-radius: 6px;
-            /* rounded pill */
             transition: all 0.2s;
             display: flex;
             align-items: center;
@@ -67,14 +62,12 @@
             color: #fff;
         }
 
-        /* CONTENT */
         .left-content {
             padding: 24px;
             flex: 1;
             overflow-y: auto;
         }
 
-        /* STEP SECTIONS */
         .step-section {
             margin-bottom: 28px;
         }
@@ -86,7 +79,6 @@
             margin-bottom: 10px;
         }
 
-        /* PROMPT TEXTAREA */
         .prompt-label {
             font-size: 12px;
             color: #9ca3af;
@@ -145,7 +137,6 @@
             color: #fff;
         }
 
-        /* UPLOAD SECTION */
         .upload-description {
             font-size: 12px;
             color: #6b7280;
@@ -211,7 +202,6 @@
             border-radius: 10px;
         }
 
-        /* CONFIG SECTIONS */
         .config-row {
             margin-bottom: 20px;
         }
@@ -284,7 +274,6 @@
             font-weight: 600;
         }
 
-        /* GENERATE BUTTON */
         .generate-section {
             position: sticky;
             bottom: 0;
@@ -348,7 +337,6 @@
             color: #fff;
         }
 
-        /* RIGHT PANEL */
         .right-panel {
             flex: 1;
             background: #000;
@@ -469,7 +457,6 @@
             border-color: #a855f7;
         }
 
-        /* SCROLLBAR */
         .left-content::-webkit-scrollbar {
             width: 6px;
         }
@@ -487,15 +474,6 @@
             background: #404040;
         }
 
-        /* ===========================================================
-                                   THEME SYSTEM — DEFAULT LIGHT MODE
-                                   This layer overrides your old dark-only CSS with light mode.
-                                   No original rules removed.
-                                   ===========================================================*/
-
-        /* -----------------------------
-                                   DEFAULT = LIGHT THEME
-                                   ----------------------------- */
         html {
             --bg-main: #ffffff;
             --bg-sidebar: #ffffff;
@@ -511,7 +489,6 @@
             --accent-hover: rgba(124, 58, 237, 0.12);
         }
 
-        /* Convert ALL SECTIONS to Light Mode */
         html:not([data-theme="dark"]) .creative-ai-wrapper {
             background: var(--bg-main) !important;
         }
@@ -541,7 +518,6 @@
             color: #fff !important;
         }
 
-        /* LEFT CONTENT TEXTS */
         html:not([data-theme="dark"]) .step-title,
         html:not([data-theme="dark"]) .upload-description {
             color: var(--text-main) !important;
@@ -551,7 +527,6 @@
             color: var(--text-secondary) !important;
         }
 
-        /* PROMPT BOX */
         html:not([data-theme="dark"]) .prompt-textarea-wrapper {
             background: var(--bg-input) !important;
             border-color: var(--accent) !important;
@@ -571,7 +546,6 @@
             color: var(--text-muted) !important;
         }
 
-        /* UPLOAD AREA */
         html:not([data-theme="dark"]) .upload-area {
             background: var(--bg-panel) !important;
             border-color: var(--bg-border) !important;
@@ -590,12 +564,10 @@
             color: var(--text-muted) !important;
         }
 
-        /* CONFIG LABELS */
         html:not([data-theme="dark"]) .config-label {
             color: var(--text-secondary) !important;
         }
 
-        /* RATIO / FORMAT BUTTONS */
         html:not([data-theme="dark"]) .ratio-option,
         html:not([data-theme="dark"]) .format-option {
             background: var(--bg-input) !important;
@@ -613,7 +585,6 @@
             color: #fff !important;
         }
 
-        /* GENERATE SECTION */
         html:not([data-theme="dark"]) .generate-section {
             background: var(--bg-sidebar) !important;
             border-top: 1px solid var(--bg-border) !important;
@@ -630,7 +601,6 @@
             color: var(--text-secondary) !important;
         }
 
-        /* RIGHT PANEL */
         html:not([data-theme="dark"]) .right-panel {
             background: var(--bg-main) !important;
         }
@@ -654,9 +624,7 @@
     </style>
 
     <div class="creative-ai-wrapper">
-        <!-- LEFT SIDEBAR -->
         <div class="left-sidebar">
-            <!-- TOP TABS -->
             <div class="top-tabs">
                 <a href="{{ route('ai.photoshoot.index') }}" class="tab-btn">
                     <i class="bi bi-camera-fill"></i>
@@ -668,9 +636,7 @@
                 </button>
             </div>
 
-            <!-- CONTENT -->
             <div class="left-content">
-                <!-- STEP 1: DESCRIBE YOUR VISION -->
                 <div class="step-section">
                     <div class="step-title">1. Describe Your Vision</div>
 
@@ -691,7 +657,6 @@
                     </div>
                 </div>
 
-                <!-- STEP 2: UPLOAD & CONFIGURE -->
                 <div class="step-section">
                     <div class="step-title">2. Upload Image & Configure</div>
 
@@ -707,7 +672,6 @@
                         </div>
                     </div>
 
-                    <!-- ASPECT RATIO -->
                     <div class="config-row">
                         <label class="config-label">Aspect Ratio</label>
                         <div class="ratio-grid">
@@ -719,7 +683,6 @@
                         </div>
                     </div>
 
-                    <!-- OUTPUT FORMAT -->
                     <div class="config-row">
                         <label class="config-label">Output Format</label>
                         <div class="format-grid">
@@ -730,7 +693,6 @@
                 </div>
             </div>
 
-            <!-- GENERATE BUTTON (STICKY) -->
             <div class="generate-section">
                 <button class="generate-btn" id="generateBtn" disabled>
                     <i class="bi bi-stars"></i>
@@ -742,7 +704,6 @@
             </div>
         </div>
 
-        <!-- RIGHT PANEL -->
         <div class="right-panel">
             <div class="preview-area" id="previewArea">
                 <div class="preview-empty">
@@ -768,11 +729,9 @@
                 timerProgressBar: true,
             });
 
-            // Prompt input validation
             const promptInput = document.getElementById('promptInput');
             promptInput.addEventListener('input', checkFormValid);
 
-            // Aspect ratio selection
             document.querySelectorAll('.ratio-option').forEach(option => {
                 option.addEventListener('click', function() {
                     document.querySelectorAll('.ratio-option').forEach(o => o.classList.remove(
@@ -782,7 +741,6 @@
                 });
             });
 
-            // Format selection
             document.querySelectorAll('.format-option').forEach(option => {
                 option.addEventListener('click', function() {
                     document.querySelectorAll('.format-option').forEach(o => o.classList.remove(
@@ -792,7 +750,6 @@
                 });
             });
 
-            // Upload handling
             document.getElementById('uploadArea').addEventListener('click', () => document.getElementById(
                 'imageInput').click());
             document.getElementById('browseLink').addEventListener('click', (e) => {
@@ -858,7 +815,6 @@
                     });
             });
 
-            // Copy prompt
             document.getElementById('copyPromptBtn').addEventListener('click', function() {
                 const prompt = promptInput.value;
                 if (prompt) {
@@ -870,7 +826,6 @@
                 }
             });
 
-            // Enhance prompt
             document.getElementById('enhanceBtn').addEventListener('click', function() {
                 const currentPrompt = promptInput.value.trim();
                 if (!currentPrompt) {
@@ -881,7 +836,6 @@
                     return;
                 }
 
-                // Simple enhancement
                 const enhanced =
                     `${currentPrompt}, ultra detailed, professional photography, high quality, 8k resolution, cinematic lighting`;
                 promptInput.value = enhanced;
@@ -892,7 +846,6 @@
                 checkFormValid();
             });
 
-            // Generate button
             document.getElementById('generateBtn').addEventListener('click', function() {
                 const prompt = promptInput.value.trim();
 
@@ -1003,12 +956,10 @@
             const themeIcon = document.getElementById('theme-icon');
             const themeLinks = document.querySelectorAll('.dropdown-item[data-theme]');
 
-            // Force default Light Mode for this page
             if (!localStorage.getItem('theme')) {
                 localStorage.setItem('theme', 'light');
             }
 
-            // Apply theme
             const setTheme = (theme) => {
                 document.documentElement.setAttribute('data-theme', theme);
 
@@ -1021,11 +972,9 @@
                 localStorage.setItem('theme', theme);
             };
 
-            // Always load saved theme (light by default)
             const savedTheme = localStorage.getItem('theme') || 'light';
             setTheme(savedTheme);
 
-            // When user selects a theme from dropdown
             themeLinks.forEach(link => {
                 link.addEventListener('click', (e) => {
                     e.preventDefault();

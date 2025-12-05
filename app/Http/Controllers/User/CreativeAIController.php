@@ -15,23 +15,16 @@ use Illuminate\Validation\ValidationException;
 class CreativeAIController extends Controller
 {
     const CREDITS_PER_GENERATION = 20;
-    const MAX_FILE_SIZE = 10485760; // 10 MB
+    const MAX_FILE_SIZE = 10485760;
     const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/jpg'];
 
-    /**
-     * Show the AI studio view.
-     */
     public function index()
     {
-        // Example model designs - in real app load from DB
         $modelDesigns = [['id' => 'classic_model_1', 'name' => 'Classic Model 1', 'thumbnail' => 'https://picsum.photos/id/237/200/300', 'category' => 'classic'], ['id' => 'classic_model_2', 'name' => 'Classic Model 2', 'thumbnail' => 'https://picsum.photos/seed/picsum/200/300', 'category' => 'classic'], ['id' => 'lifestyle_model_1', 'name' => 'Lifestyle Model 1', 'thumbnail' => 'https://picsum.photos/200/300?grayscale', 'category' => 'lifestyle'], ['id' => 'luxury_model_1', 'name' => 'Luxury Model 1', 'thumbnail' => 'https://picsum.photos/id/870/200/300?grayscale&blur=2', 'category' => 'luxury'], ['id' => 'outdoor_model_1', 'name' => 'Outdoor Model 1', 'thumbnail' => 'https://picsum.photos/seed/picsum/200/300', 'category' => 'outdoor']];
 
         return view('user.ai_studio', compact('modelDesigns'));
     }
 
-    /**
-     * Upload an image (used by both photoshoot & creative)
-     */
     public function uploadImage(Request $request)
     {
         try {
@@ -69,9 +62,6 @@ class CreativeAIController extends Controller
         }
     }
 
-    /**
-     * Generate creative image (uses credits etc).
-     */
     public function generate(Request $request)
     {
         try {
@@ -92,7 +82,6 @@ class CreativeAIController extends Controller
                 return response()->json(['success' => false, 'message' => 'Insufficient credits'], 400);
             }
 
-            // Create generation record
             $generation = CreativeAIGeneration::create([
                 'user_id' => $user->id,
                 'prompt' => $validated['prompt'],
@@ -103,7 +92,6 @@ class CreativeAIController extends Controller
                 'credits_used' => $creditsNeeded,
             ]);
 
-            // Deduct credits immediately
             $user->total_credits -= $creditsNeeded;
             $user->save();
 
@@ -118,12 +106,10 @@ class CreativeAIController extends Controller
 
             Log::info('Creative AI Generation queued', ['generation_id' => $generation->id, 'user_id' => $user->id]);
 
-            // For the demo, do a synchronous mock generation (replace with async job in production)
             $enhancedPrompt = $this->enhancePrompt($validated['prompt'], $validated['aspect_ratio']);
             $generatedImagePath = $this->mockGenerateCreativeImage($generation, $enhancedPrompt);
 
             if (!$generatedImagePath) {
-                // Refund credits on failure
                 $user->total_credits += $creditsNeeded;
                 $user->save();
                 CreditTransaction::create([
@@ -140,7 +126,6 @@ class CreativeAIController extends Controller
                 return response()->json(['success' => false, 'message' => 'Image generation failed. Credits refunded.'], 500);
             }
 
-            // mark completed with metadata
             $generation->status = 'completed';
             $generation->generated_images = [$generatedImagePath];
             $generation->service_response = [
@@ -168,9 +153,6 @@ class CreativeAIController extends Controller
         }
     }
 
-    /**
-     * Enhance user prompt with quality keywords and aspect hints.
-     */
     private function enhancePrompt($userPrompt, $aspectRatio)
     {
         $qualityKeywords = ['ultra detailed', 'high quality', 'professional photography', '8k resolution', 'realistic', 'sharp focus', 'vibrant colors'];
@@ -185,21 +167,16 @@ class CreativeAIController extends Controller
         return $userPrompt . ', ' . $aspectHint . ', ' . implode(', ', $qualityKeywords);
     }
 
-    /**
-     * Mock generation: copies uploaded image to /public/upload/generated and returns public path.
-     */
     private function mockGenerateCreativeImage($generation, $prompt)
     {
         try {
             if (empty($generation->uploaded_image) || !file_exists(public_path($generation->uploaded_image))) {
-                // If none uploaded, create a placeholder using picsum
                 $seed = rand(1000, 9999);
                 $newFile = 'creative_gen_' . time() . '_' . Str::random(6) . '.jpg';
                 $targetDir = public_path('upload/generated');
                 if (!file_exists($targetDir)) {
                     mkdir($targetDir, 0777, true);
                 }
-                // Try to fetch remote picsum into file (if allow_url_fopen enabled)
                 $remote = "https://picsum.photos/1200/800?random={$seed}";
                 try {
                     $contents = @file_get_contents($remote);
@@ -214,7 +191,6 @@ class CreativeAIController extends Controller
                 return '/upload/generated/' . $newFile;
             }
 
-            // uploaded_image is a relative public path like 'upload/filename.jpg'
             $relativePath = str_replace(['\\', '//'], '/', $generation->uploaded_image);
             $sourcePath = public_path($relativePath);
 
@@ -316,9 +292,6 @@ class CreativeAIController extends Controller
         }
     }
 
-    /**
-     * Pagination history (AJAX)
-     */
     public function history()
     {
         try {

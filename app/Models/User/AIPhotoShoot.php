@@ -36,50 +36,33 @@ class AIPhotoShoot extends Model
         'credits_used' => 'integer',
     ];
 
-    /**
-     * Relationship to User
-     */
+
     public function user()
     {
         return $this->belongsTo(\App\Models\User::class);
     }
 
-    /**
-     * Get the first generated image
-     */
     public function getFirstImageAttribute()
     {
         $images = $this->generated_images;
         return is_array($images) && count($images) > 0 ? $images[0] : null;
     }
 
-    /**
-     * Check if shoot is completed
-     */
     public function isCompleted()
     {
         return $this->status === 'completed';
     }
 
-    /**
-     * Check if shoot is processing
-     */
     public function isProcessing()
     {
         return $this->status === 'processing';
     }
 
-    /**
-     * Scope: Get user's shoots
-     */
     public function scopeForUser($query, $userId)
     {
         return $query->where('user_id', $userId);
     }
 
-    /**
-     * Scope: Completed shoots
-     */
     public function scopeCompleted($query)
     {
         return $query->where('status', 'completed');

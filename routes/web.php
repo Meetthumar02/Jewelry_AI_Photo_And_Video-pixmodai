@@ -39,7 +39,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/generation-history', [App\Http\Controllers\User\UserController::class, 'generationHistory'])->name('generation.history');
     Route::get('/favorites', [App\Http\Controllers\User\UserController::class, 'favorites'])->name('favorites');
     Route::post('/toggle-favorite', [App\Http\Controllers\User\UserController::class, 'toggleFavorite'])->name('toggle.favorite');
-    // Route::get('/projects', [App\Http\Controllers\User\UserController::class, 'projects'])->name('projects');
     Route::get('/contact', [App\Http\Controllers\User\UserController::class, 'contact'])->name('contact');
 
     Route::prefix('settings')
@@ -67,36 +66,26 @@ Route::middleware('auth')->group(function () {
     Route::prefix('ai-photoshoot')
         ->name('ai.photoshoot.')
         ->group(function () {
-            // Main page
             Route::get('/', [App\Http\Controllers\User\AIPhotoShootController::class, 'index'])->name('index');
-            // Upload image
             Route::post('/upload', [App\Http\Controllers\User\AIPhotoShootController::class, 'uploadImage'])->name('upload');
-            // Start shoot generation
             Route::post('/start', [App\Http\Controllers\User\AIPhotoShootController::class, 'startShoot'])->name('start');
-            // Get shoot status
             Route::get('/status/{id}', [App\Http\Controllers\User\AIPhotoShootController::class, 'getStatus'])->name('status');
-            // Download generated image
             Route::get('/download/{id}', [App\Http\Controllers\User\AIPhotoShootController::class, 'downloadImage'])->name('download');
-            // Delete shoot
             Route::delete('/{id}', [App\Http\Controllers\User\AIPhotoShootController::class, 'destroy'])->name('destroy');
         });
+
+
+
     // Creative AI Routes
     Route::prefix('creative-ai')
         ->name('creative.ai.')
         ->group(function () {
-            // Main page
             Route::get('/', [App\Http\Controllers\User\CreativeAIController::class, 'index'])->name('index');
-            // Upload image
             Route::post('/upload', [App\Http\Controllers\User\CreativeAIController::class, 'uploadImage'])->name('upload');
-            // Generate creative image
             Route::post('/generate', [App\Http\Controllers\User\CreativeAIController::class, 'generate'])->name('generate');
-            // Get generation status
             Route::get('/status/{id}', [App\Http\Controllers\User\CreativeAIController::class, 'getStatus'])->name('status');
-            // Download generated image
             Route::get('/download/{id}', [App\Http\Controllers\User\CreativeAIController::class, 'downloadImage'])->name('download');
-            // Delete generation
             Route::delete('/{id}', [App\Http\Controllers\User\CreativeAIController::class, 'destroy'])->name('destroy');
-            // Get history
             Route::get('/history', [App\Http\Controllers\User\CreativeAIController::class, 'history'])->name('history');
         });
 });
