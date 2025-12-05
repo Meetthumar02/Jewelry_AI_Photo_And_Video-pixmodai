@@ -12,7 +12,6 @@ class CreativeAIGeneration extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $connection = 'creative_ai';
     protected $table = 'creative_ai_generations';
 
     protected $fillable = [

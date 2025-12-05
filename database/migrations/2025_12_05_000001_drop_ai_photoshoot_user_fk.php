@@ -11,9 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::connection('ai_photoshoot')->table('ai_photo_shoots', function (Blueprint $table) {
+        Schema::table('ai_photo_shoots', function (Blueprint $table) {
             // Drop the foreign key constraint to allow users from the main database.
-            if (Schema::connection('ai_photoshoot')->hasColumn('ai_photo_shoots', 'user_id')) {
+            if (Schema::hasColumn('ai_photo_shoots', 'user_id')) {
                 $table->dropForeign(['user_id']);
             }
         });
@@ -24,8 +24,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::connection('ai_photoshoot')->table('ai_photo_shoots', function (Blueprint $table) {
-            // Recreate the foreign key if needed (assumes users table exists in ai_photoshoot DB)
+        Schema::table('ai_photo_shoots', function (Blueprint $table) {
+            // Recreate the foreign key if needed (assumes users table exists in same DB)
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }

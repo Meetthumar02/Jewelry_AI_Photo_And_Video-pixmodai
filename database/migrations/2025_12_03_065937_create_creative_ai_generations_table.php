@@ -13,7 +13,7 @@ return new class extends Migration
      */
   public function up()
 {
-    Schema::connection('creative_ai')->create('creative_ai_generations', function (Blueprint $table) {
+    Schema::create('creative_ai_generations', function (Blueprint $table) {
         $table->id();
 
         $table->unsignedBigInteger('user_id');
@@ -46,6 +46,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::connection('creative_ai')->dropIfExists('creative_ai_generations');
+        Schema::dropIfExists('creative_ai_generations');
     }
 };

@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::connection('creative_ai')->table('creative_ai_generations', function (Blueprint $table) {
-            if (!Schema::connection('creative_ai')->hasColumn('creative_ai_generations', 'service_response')) {
+        Schema::table('creative_ai_generations', function (Blueprint $table) {
+            if (!Schema::hasColumn('creative_ai_generations', 'service_response')) {
                 $table->json('service_response')->nullable()->after('ai_response');
             }
         });
@@ -23,8 +23,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::connection('creative_ai')->table('creative_ai_generations', function (Blueprint $table) {
-            if (Schema::connection('creative_ai')->hasColumn('creative_ai_generations', 'service_response')) {
+        Schema::table('creative_ai_generations', function (Blueprint $table) {
+            if (Schema::hasColumn('creative_ai_generations', 'service_response')) {
                 $table->dropColumn('service_response');
             }
         });

@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up()
     {
-        Schema::connection('ai_photoshoot')->create('ai_photo_shoots', function (Blueprint $table) {
+        Schema::create('ai_photo_shoots', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
 
@@ -42,6 +42,6 @@ return new class extends Migration
 
     public function down()
     {
-        Schema::connection('ai_photoshoot')->dropIfExists('ai_photo_shoots');
+        Schema::dropIfExists('ai_photo_shoots');
     }
 };

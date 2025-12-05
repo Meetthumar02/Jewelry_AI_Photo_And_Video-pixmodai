@@ -10,7 +10,6 @@ class AIPhotoShoot extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $connection = 'ai_photoshoot';
     protected $table = 'ai_photo_shoots';
 
     protected $fillable = [
