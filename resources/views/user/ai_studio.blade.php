@@ -1,10 +1,8 @@
-{{-- resources/views/user/ai_studio.blade.php --}}
 @extends('user.app')
 @section('title', 'AI Studio')
 @section('content')
 
     <style>
-        /* Reset + base */
         * {
             margin: 0;
             padding: 0;
@@ -80,7 +78,6 @@
             display: block
         }
 
-        /* Sections */
         .step-section {
             margin-bottom: 32px
         }
@@ -136,7 +133,6 @@
             border-color: #a855f7
         }
 
-        /* Pills */
         .shoot-type-row {
             display: flex;
             gap: 10px;
@@ -166,7 +162,6 @@
             color: #fff
         }
 
-        /* Model slider */
         .model-slider-wrapper {
             position: relative;
             background: #0f0f0f;
@@ -249,7 +244,6 @@
             right: 10px
         }
 
-        /* Upload / prompt */
         .prompt-label {
             font-size: 12px;
             color: #9ca3af;
@@ -309,7 +303,6 @@
             color: #fff
         }
 
-        /* upload area common */
         .upload-area {
             background: #0f0f0f;
             border: 2px dashed #2a2a2a;
@@ -370,7 +363,6 @@
             border-radius: 10px
         }
 
-        /* config controls */
         .config-row {
             display: flex;
             gap: 16px;
@@ -1205,8 +1197,12 @@
 
             // photoshoot generate
             document.getElementById('photoshoot-generateBtn').addEventListener('click', function() {
-                const activeTab = document.querySelector('.tab-content.active').id;
+
+                const activeTab = document.querySelector('.tab-btn.active').dataset.tab;
+
+                /* --------------- PHOTOSHOOT ---------------- */
                 if (activeTab === 'photoshoot') {
+
                     if (!photoshootData.uploadedImagePath || !photoshootData.selectedModelDesign) {
                         Toast.fire({
                             icon: 'warning',
@@ -1214,6 +1210,7 @@
                         });
                         return;
                     }
+
                     const payload = {
                         industry: document.getElementById('photoshoot-industry').value,
                         category: document.getElementById('photoshoot-category').value,
@@ -1224,57 +1221,122 @@
                         aspect_ratio: photoshootData.selectedRatio,
                         output_format: photoshootData.selectedFormat
                     };
+
                     Swal.fire({
                         title: 'Generating...',
                         html: 'Creating your perfect shot',
                         allowOutsideClick: false,
                         didOpen: () => Swal.showLoading()
                     });
+
                     fetch('{{ route('ai.photoshoot.start') }}', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                        },
-                        body: JSON.stringify(payload)
-                    }).then(r => r.json()).then(result => {
-                        Swal.close();
-                        if (result.success) {
-                            Toast.fire({
-                                icon: 'success',
-                                title: 'Photo shoot completed!'
-                            });
-                            displayResult(result.shoot, 'photoshoot');
-                        } else {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            },
+                            body: JSON.stringify(payload)
+                        })
+                        .then(r => r.json())
+                        .then(result => {
+                            Swal.close();
+                            if (result.success) {
+                                Toast.fire({
+                                    icon: 'success',
+                                    title: 'Photo shoot completed!'
+                                });
+                                displayResult(result.shoot, 'photoshoot');
+                            } else {
+                                Toast.fire({
+                                    icon: 'error',
+                                    title: result.message || 'Generation failed'
+                                });
+                            }
+                        })
+                        .catch(() => {
+                            Swal.close();
                             Toast.fire({
                                 icon: 'error',
-                                title: result.message || 'Generation failed'
+                                title: 'Generation failed'
                             });
-                        }
-                    }).catch(err => {
-                        Swal.close();
-                        Toast.fire({
-                            icon: 'error',
-                            title: 'Generation failed'
                         });
+
+                    return;
+                }
+
+                /* --------------- CREATIVE ---------------- */
+                if (activeTab === 'creative') {
+
+                    const prompt = creativePromptInput.value.trim();
+                    if (prompt.length < 10) {
+                        Toast.fire({
+                            icon: 'warning',
+                            title: 'Please enter a detailed prompt (min 10 chars)'
+                        });
+                        return;
+                    }
+
+                    const payload = {
+                        prompt: prompt,
+                        uploaded_image: creativeData.uploadedImagePath,
+                        aspect_ratio: creativeData.selectedRatio,
+                        output_format: creativeData.selectedFormat
+                    };
+
+                    Swal.fire({
+                        title: 'Generating Creative Image...',
+                        html: 'Please wait while AI creates your vision',
+                        allowOutsideClick: false,
+                        didOpen: () => Swal.showLoading()
                     });
+
+                    fetch('{{ route('creative.ai.generate') }}', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            },
+                            body: JSON.stringify(payload)
+                        })
+                        .then(r => r.json())
+                        .then(result => {
+                            Swal.close();
+                            if (result.success) {
+                                Toast.fire({
+                                    icon: 'success',
+                                    title: 'Image generated!'
+                                });
+                                displayResult(result.generation, 'creative');
+                            } else {
+                                Toast.fire({
+                                    icon: 'error',
+                                    title: result.message || 'Generation failed'
+                                });
+                            }
+                        })
+                        .catch(() => {
+                            Swal.close();
+                            Toast.fire({
+                                icon: 'error',
+                                title: 'Generation failed'
+                            });
+                        });
                 }
             });
 
+
             function checkPhotoshootFormValid() {
-                document.getElementById('photoshoot-generateBtn').disabled = !(photoshootData.uploadedImagePath &&
-                    photoshootData.selectedModelDesign);
+                const hasImage = !!photoshootData.uploadedImagePath ||
+                    document.getElementById('photoshoot-uploadArea').classList.contains('has-file');
+                const hasModel = !!photoshootData.selectedModelDesign;
+                document.getElementById('photoshoot-generateBtn').disabled = !(hasImage && hasModel);
             }
 
-            // slider arrows
             document.getElementById('photoshoot-modelPrevBtn')?.addEventListener('click', () => document
                 .getElementById('photoshoot-modelDesignsArea').scrollLeft -= 180);
             document.getElementById('photoshoot-modelNextBtn')?.addEventListener('click', () => document
                 .getElementById('photoshoot-modelDesignsArea').scrollLeft += 180);
 
-            /* ==================
-               CREATIVE LOGIC
-               ================== */
             let creativeData = {
                 uploadedImagePath: null,
                 selectedRatio: '1:1',
@@ -1284,7 +1346,6 @@
 
             creativePromptInput.addEventListener('input', checkCreativeFormValid);
 
-            // ratio/format creative
             document.querySelectorAll('#creative-tab .ratio-option').forEach(option => {
                 option.addEventListener('click', function() {
                     document.querySelectorAll('#creative-tab .ratio-option').forEach(o => o
@@ -1302,7 +1363,6 @@
                 });
             });
 
-            // creative upload
             document.getElementById('creative-uploadArea').addEventListener('click', () => document.getElementById(
                 'creative-imageInput').click());
             document.getElementById('creative-browseLink').addEventListener('click', (e) => {
@@ -1362,7 +1422,6 @@
                     });
             });
 
-            // copy / enhance prompt
             document.getElementById('creative-copyPromptBtn').addEventListener('click', function() {
                 const prompt = creativePromptInput.value;
                 if (prompt) {
@@ -1391,9 +1450,6 @@
                 checkCreativeFormValid();
             });
 
-            // creative generate uses same button as photoshoot but checks active tab
-            // handled above in photoshoot generate click by checking activeTab === 'creative-tab'
-            // update: attach same handler separately for safety
             document.getElementById('photoshoot-generateBtn').addEventListener('click', function() {
                 const activeTab = document.querySelector('.tab-content.active').id;
                 if (activeTab === 'creative-tab') {
@@ -1468,14 +1524,18 @@
             function updateGenerateState() {
                 const activeTab = document.querySelector('.tab-content.active').id;
                 const btn = document.getElementById('photoshoot-generateBtn');
+
                 if (activeTab === 'photoshoot') {
-                    checkPhotoshootFormValid();
-                    btn.classList.remove('creative-enabled');
-                    btn.classList.remove('creative-disabled');
+                    checkPhotoshootFormValid(); // KEEP THIS
+
+                    // ❌ REMOVE these lines because they override enabled state:
+                    // btn.classList.remove('creative-enabled');
+                    // btn.classList.remove('creative-disabled');
                 } else {
                     checkCreativeFormValid();
                 }
             }
+
 
             // common display result
             function displayResult(result, type) {
