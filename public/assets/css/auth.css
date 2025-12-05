@@ -1,0 +1,87 @@
+/* ===================================
+   Nimora AI Auth Pages (Login + Register)
+   File: public/css/auth.css
+   =================================== */
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: linear-gradient(135deg, #f9fafb, #eef1f5);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.auth-card {
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  padding: 40px 35px;
+  max-width: 460px;
+  width: 100%;
+  transition: all 0.3s ease;
+}
+
+.auth-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+}
+
+.auth-title {
+  font-weight: 700;
+  font-size: 28px;
+  color: #111827;
+}
+
+.auth-subtitle {
+  color: #6b7280;
+  font-size: 15px;
+}
+
+.form-control {
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.btn-custom {
+  background: #4f46e5;
+  color: #fff;
+  font-weight: 600;
+  border-radius: 12px;
+  transition: background 0.3s;
+}
+
+.btn-custom:hover {
+  background: #4338ca;
+  color: #fff;
+}
+
+.text-link {
+  color: #4f46e5;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.text-link:hover {
+  text-decoration: underline;
+}
+
+.error-text {
+  color: #dc2626;
+  font-size: 14px;
+  text-align: center;
+}
+
+@media (max-width: 480px) {
+  .auth-card {
+    padding: 30px 25px;
+  }
+
+  .auth-title {
+    font-size: 24px;
+  }
+
+  .auth-subtitle {
+    font-size: 14px;
+  }
+}

@@ -1,0 +1,25 @@
+/node_modules
+/public/build
+/public/hot
+
+# Environment files
+.env
+.env.production
+
+# Vendor folder
+/vendor
+
+# Tests cache
+.phpunit.result.cache
+
+# Logs & system files
+npm-debug.log
+yarn-error.log
+
+# IDE folders
+/.fleet
+/.idea
+/.vscode
+
+# Homestead
+Homestead.json
