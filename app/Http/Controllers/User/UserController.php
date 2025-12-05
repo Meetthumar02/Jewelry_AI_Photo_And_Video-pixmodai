@@ -6,10 +6,13 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User\CatalogStudio;
 use App\Models\User\AIPhotoShoot;
+use App\Models\User\CreativeAIGeneration;
 use App\Models\User\Favorite;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 
 class UserController extends Controller
 {
@@ -31,28 +34,56 @@ class UserController extends Controller
     {
         $userId = Auth::id();
 
-        // Use photo shoot records as “catalog” items so the library is populated
-        $query = AIPhotoShoot::forUser($userId);
+        // Pull photo shoots (ai_photoshoot connection)
+        $shoots = AIPhotoShoot::forUser($userId)->get()->map(function ($item) {
+            $item->source = 'photoshoot';
+            $item->title = $item->product_type ?? 'Catalog Item';
+            $item->subtitle = $item->industry ?? '';
+            return $item;
+        });
 
+        // Pull creative AI generations (creative_ai connection)
+        $creative = CreativeAIGeneration::forUser($userId)->get()->map(function ($item) {
+            $item->source = 'creative';
+            $item->title = 'Creative AI';
+            $item->subtitle = Str::limit($item->prompt, 60);
+            $item->product_type = 'Creative';
+            $item->shoot_type = $item->aspect_ratio;
+            $item->model_design_id = $item->output_format;
+            return $item;
+        });
+
+        $merged = $shoots->merge($creative);
+
+        // Filters
         if ($request->filled('type')) {
-            $query->where('product_type', $request->type);
+            $merged = $merged->filter(fn($c) => ($c->product_type ?? '') == $request->type);
         }
-
         if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('product_type', 'like', "%$search%")
-                    ->orWhere('industry', 'like', "%$search%")
-                    ->orWhere('shoot_type', 'like', "%$search%");
+            $search = strtolower($request->search);
+            $merged = $merged->filter(function ($c) use ($search) {
+                return str_contains(strtolower($c->title ?? ''), $search)
+                    || str_contains(strtolower($c->subtitle ?? ''), $search)
+                    || str_contains(strtolower($c->shoot_type ?? ''), $search);
             });
         }
 
-        $query->orderBy('id', $request->sort == 'oldest' ? 'asc' : 'desc');
+        // Sort
+        $merged = $merged->sortByDesc(fn($c) => $c->created_at ?? now());
+        if ($request->sort == 'oldest') {
+            $merged = $merged->reverse();
+        }
 
-        $catalogs = $query->paginate(8)->withQueryString();
+        // Manual pagination
+        $perPage = 8;
+        $page = LengthAwarePaginator::resolveCurrentPage();
+        $items = $merged->slice(($page - 1) * $perPage, $perPage)->values();
+        $catalogs = new LengthAwarePaginator($items, $merged->count(), $perPage, $page, [
+            'path' => LengthAwarePaginator::resolveCurrentPath(),
+            'query' => $request->query(),
+        ]);
 
-        // Favorites currently rely on catalog_studios; return empty until that model is wired up
-        $favoriteIds = [];
+        $favoriteIds = []; // favorites disabled for now
 
         return view('user.catalog_library', compact('catalogs', 'favoriteIds'));
     }
@@ -63,33 +94,55 @@ class UserController extends Controller
     {
         $userId = Auth::id();
 
-        $query = \DB::table('ai_photo_shoots')->where('user_id', $userId);
+        // Photoshoot history
+        $shoots = AIPhotoShoot::forUser($userId)->get()->map(function ($item) {
+            $item->source = 'photoshoot';
+            return $item;
+        });
 
+        // Creative history
+        $creative = CreativeAIGeneration::forUser($userId)->get()->map(function ($item) {
+            $item->source = 'creative';
+            $item->product_type = 'Creative';
+            $item->shoot_type = $item->aspect_ratio;
+            $item->model_design_id = $item->output_format;
+            return $item;
+        });
+
+        $merged = $shoots->merge($creative);
+
+        // Filters
         if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('product_type', 'like', "%$search%")
-                    ->orWhere('metal_type', 'like', "%$search%")
-                    ->orWhere('shoot_type', 'like', "%$search%")
-                    ->orWhere('mode_type', 'like', "%$search%");
+            $search = strtolower($request->search);
+            $merged = $merged->filter(function ($g) use ($search) {
+                return str_contains(strtolower($g->product_type ?? ''), $search)
+                    || str_contains(strtolower($g->shoot_type ?? ''), $search)
+                    || str_contains(strtolower($g->model_design_id ?? ''), $search);
             });
         }
 
         if ($request->filled('type')) {
-            $query->where('product_type', $request->type);
+            $merged = $merged->filter(fn($g) => ($g->product_type ?? '') == $request->type);
         }
 
         if ($request->filled('mode')) {
-            $query->where('mode_type', $request->mode);
+            $merged = $merged->filter(fn($g) => ($g->status ?? '') == $request->mode);
         }
 
+        // Sort
+        $merged = $merged->sortByDesc(fn($g) => $g->created_at ?? now());
         if ($request->sort == 'oldest') {
-            $query->orderBy('created_at', 'asc');
-        } else {
-            $query->orderBy('created_at', 'desc');
+            $merged = $merged->reverse();
         }
 
-        $generations = $query->paginate(12);
+        // Manual pagination
+        $perPage = 12;
+        $page = LengthAwarePaginator::resolveCurrentPage();
+        $items = $merged->slice(($page - 1) * $perPage, $perPage)->values();
+        $generations = new LengthAwarePaginator($items, $merged->count(), $perPage, $page, [
+            'path' => LengthAwarePaginator::resolveCurrentPath(),
+            'query' => $request->query(),
+        ]);
 
         return view('user.generation_history', compact('generations'));
     }

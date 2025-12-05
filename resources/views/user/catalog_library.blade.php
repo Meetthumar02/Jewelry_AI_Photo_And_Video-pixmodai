@@ -44,7 +44,6 @@
         <div class="row g-4" id="catalogGrid">
             @forelse ($catalogs as $catalog)
                 @php
-                    // For ai_photo_shoots records used as catalog items
                     $mainImage = $catalog->generated_images[0] ?? $catalog->uploaded_image ?? 'no-image.png';
                     $mainImageUrl = Str::startsWith($mainImage, ['http', '/']) ? $mainImage : asset($mainImage);
                 @endphp
@@ -55,14 +54,17 @@
 
                         <div class="card-body">
                             <div class="d-flex justify-content-between mb-2">
-                                <h6>{{ ucfirst($catalog->product_type ?? 'Unknown') }}</h6>
+                                <div>
+                                    <h6 class="mb-0">{{ ucfirst($catalog->product_type ?? 'Unknown') }}</h6>
+                                    <small class="text-muted">{{ $catalog->source === 'creative' ? 'Creative AI' : 'Photoshoot' }}</small>
+                                </div>
                                 {{-- Favorites disabled until catalog_studios is wired --}}
                                 <button class="btn-favorite disabled" title="Favorites unavailable">
                                     <i class="fas fa-star"></i>
                                 </button>
                             </div>
 
-                            <p class="small text-muted">Shoot: {{ ucfirst($catalog->shoot_type ?? 'N/A') }}</p>
+                            <p class="small text-muted">Details: {{ ucfirst($catalog->shoot_type ?? 'N/A') }}</p>
 
                             <button class="btn btn-sm btn-gradient openModal w-100"
                                 data-name="{{ $catalog->product_type ?? 'Catalog Item' }}"

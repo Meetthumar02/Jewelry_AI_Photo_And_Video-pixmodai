@@ -91,7 +91,10 @@
                         <tbody>
                             @forelse ($generations as $generation)
                                 <tr>
-                                    <td><strong>{{ $generation->product_type ?? '-' }}</strong></td>
+                                    <td>
+                                        <strong>{{ $generation->product_type ?? '-' }}</strong><br>
+                                        <small class="text-muted">{{ $generation->source === 'creative' ? 'Creative AI' : 'Photoshoot' }}</small>
+                                    </td>
 
                                     <td>
                                         <span class="badge bg-primary text-capitalize">
@@ -112,9 +115,14 @@
                                     </td>
 
                                     <td>
+                                        @php
+                                            $imgs = is_array($generation->generated_images)
+                                                ? $generation->generated_images
+                                                : (json_decode($generation->generated_images ?? '[]', true) ?: []);
+                                            $imgCount = max(count($imgs), $generation->generated_images ? 1 : 0);
+                                        @endphp
                                         <span class="badge bg-success">
-                                            {{ is_array(json_decode($generation->generated_images, true)) ? count(json_decode($generation->generated_images, true)) : 1 }}
-                                            Photo(s)
+                                            {{ $imgCount }} Photo(s)
                                         </span>
                                     </td>
 
