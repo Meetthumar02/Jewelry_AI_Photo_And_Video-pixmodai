@@ -277,13 +277,6 @@
             color: #6b7280
         }
 
-        .prompt-actions {
-            display: flex;
-            justify-content: flex-end;
-            gap: 8px;
-            margin-top: 12px
-        }
-
         .prompt-icon-btn {
             width: 32px;
             height: 32px;
@@ -440,7 +433,6 @@
             color: #000
         }
 
-        /* generate area */
         .generate-section {
             position: sticky;
             bottom: 0;
@@ -508,7 +500,6 @@
             color: #fff
         }
 
-        /* right preview */
         .right-panel {
             flex: 1;
             background: #000;
@@ -558,7 +549,6 @@
             color: #6b7280
         }
 
-        /* preview result */
         .preview-image-container {
             width: 100%;
             height: 100%;
@@ -636,7 +626,6 @@
             border-color: #a855f7
         }
 
-        /* scrollbars */
         .left-content::-webkit-scrollbar {
             width: 6px
         }
@@ -654,7 +643,6 @@
             background: #404040
         }
 
-        /* Light mode overrides */
         html[data-theme="light"] .ai-studio-wrapper {
             background: #f8fafc
         }
@@ -917,9 +905,6 @@
             display: block;
         }
 
-        /* ------------------------ */
-        /* LIGHT MODE FIX FOR STYLE */
-        /* ------------------------ */
         html[data-theme="light"] .style-dropdown {
             background: #ffffff !important;
             border: 1px solid #d1d5db !important;
@@ -951,8 +936,6 @@
             background: #7c3aed !important;
             color: #ffffff !important;
         }
-
-        /* -------- STYLE CHIP CLEAN DISPLAY -------- */
 
         .style-chip {
             display: flex;
@@ -993,13 +976,136 @@
             color: #fff;
         }
 
-        /* Rotate arrow when dropdown is open */
         .style-dropdown .bi-chevron-down {
             transition: transform 0.25s ease;
         }
 
         .style-dropdown.open .bi-chevron-down {
             transform: rotate(180deg);
+        }
+
+        .scanner-line {
+            width: 100%;
+            height: 4px;
+            margin-top: 30px;
+            border-radius: 10px;
+
+            background: linear-gradient(90deg,
+                    transparent,
+                    #9b4dff,
+                    transparent);
+
+            background-position: 200% 0;
+            background-size: 200% 100%;
+
+            animation: scannerMove 2.3s linear infinite;
+            opacity: 0.75;
+        }
+
+        @keyframes scannerMove {
+            0% {
+                background-position: -200% 0;
+            }
+
+            100% {
+                background-position: 200% 0;
+            }
+        }
+
+        html[data-theme="light"] .scanner-line {
+            background: linear-gradient(90deg,
+                    transparent,
+                    #7c3aed,
+                    transparent);
+        }
+
+        .scanner-line {
+            width: 100%;
+            height: 4px;
+            margin-top: 30px;
+            border-radius: 10px;
+            background: linear-gradient(90deg,
+                    transparent,
+                    #9b4dff,
+                    transparent);
+            background-position: 200% 0;
+            background-size: 200% 100%;
+            animation: scannerMove 2.3s linear infinite;
+            opacity: 0.75;
+        }
+
+        @keyframes scannerMove {
+            0% {
+                background-position: -200% 0;
+            }
+
+            100% {
+                background-position: 200% 0;
+            }
+        }
+
+        .preview-area {
+            position: relative !important;
+            overflow: hidden;
+        }
+
+        .scanner-wrapper {
+            position: absolute;
+            inset: 0;
+            z-index: 50;
+            pointer-events: none;
+        }
+
+        .scanner-line {
+            position: absolute;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            border-radius: 12px;
+
+            background: linear-gradient(90deg,
+                    transparent,
+                    #9b4dff,
+                    transparent);
+            box-shadow: 0 0 12px #9b4dff;
+
+            transform: translateY(-10px);
+            opacity: 0.9;
+
+            animation: verticalScan 3s ease-in-out infinite;
+        }
+
+        @keyframes verticalScan {
+            0% {
+                transform: translateY(-10px);
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 1;
+            }
+
+            50% {
+                transform: translateY(calc(100% - 4px));
+                opacity: 1;
+            }
+
+            90% {
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(-10px);
+                opacity: 0;
+            }
+        }
+
+        html[data-theme="light"] .scanner-line {
+            background: linear-gradient(90deg,
+                    transparent,
+                    #7c3aed,
+                    transparent);
+            box-shadow: 0 0 12px #7c3aed;
         }
     </style>
 
@@ -1056,7 +1162,8 @@
 
                                 <div class="style-dropdown" id="categoryDropdown">
                                     <div class="dropdown-selected">
-                                        <img src="/assets\upload\catlog_studion_image/model_1279825432.png" class="opt-img">
+                                        <img src="/assets\upload\catlog_studion_image/model_1279825432.png"
+                                            class="opt-img">
                                         <span>Women Jewellery</span>
                                         <i class="bi bi-chevron-down"></i>
                                     </div>
@@ -1192,18 +1299,13 @@
                         <div class="prompt-textarea-wrapper">
                             <textarea class="prompt-textarea" id="creative-promptInput"
                                 placeholder="e.g., A female model wearing the product, standing on a futuristic city street at night, neon lights reflecting..."></textarea>
-                            <div class="prompt-actions">
-                                <button class="prompt-icon-btn" title="AI Enhance" id="creative-enhanceBtn"><i
-                                        class="bi bi-magic"></i></button>
-                                <button class="prompt-icon-btn" title="Copy" id="creative-copyPromptBtn"><i
-                                        class="bi bi-clipboard"></i></button>
-                            </div>
                         </div>
                     </div>
 
                     <div class="step-section">
                         <div class="step-title">2. Upload Image & Configure</div>
-                        <p class="upload-description">For best results, upload a clear, full product photo.</p>
+                        <p style="font-size:12px;color:#6b7280;margin-bottom:12px">For best results, upload a clear, full
+                            product photo</p>
                         <div class="upload-area" id="creative-uploadArea">
                             <input type="file" id="creative-imageInput" accept="image/jpeg,image/png,image/jpg"
                                 style="display:none">
@@ -1216,21 +1318,25 @@
                         </div>
 
                         <div class="config-row">
-                            <label class="config-label">Aspect Ratio</label>
-                            <div class="ratio-grid">
-                                <div class="ratio-option active" data-ratio="1:1">1:1</div>
-                                <div class="ratio-option" data-ratio="4:3">4:3</div>
-                                <div class="ratio-option" data-ratio="16:9">16:9</div>
-                                <div class="ratio-option" data-ratio="3:4">3:4</div>
-                                <div class="ratio-option" data-ratio="9:16">9:16</div>
+                            <div class="config-group">
+                                <label class="config-label">Aspect Ratio</label>
+                                <div class="ratio-grid">
+                                    <div class="ratio-option" data-ratio="1:1">1:1</div>
+                                    <div class="ratio-option" data-ratio="4:3">4:3</div>
+                                    <div class="ratio-option" data-ratio="16:9">16:9</div>
+                                    <div class="ratio-option" data-ratio="3:4">3:4</div>
+                                    <div class="ratio-option" data-ratio="9:16">9:16</div>
+                                </div>
                             </div>
                         </div>
 
                         <div class="config-row">
-                            <label class="config-label">Output Format</label>
-                            <div class="format-grid">
-                                <div class="format-option active" data-format="JPEG">JPEG</div>
-                                <div class="format-option" data-format="PNG">PNG</div>
+                            <div class="config-group">
+                                <label class="config-label">Output Format</label>
+                                <div class="format-grid">
+                                    <div class="format-option" data-format="JPEG">JPEG</div>
+                                    <div class="format-option" data-format="PNG">PNG</div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -1252,6 +1358,9 @@
                 <div class="preview-empty">
                     <i class="bi bi-image"></i>
                     <h6>Your AI-generated image will appear here.</h6>
+
+                    <!-- ANIMATED SCANNER LINE -->
+                    <div class="scanner-line"></div>
                 </div>
             </div>
         </div>
@@ -1272,6 +1381,17 @@
             });
             const isRoute = (r) => window.location.pathname.includes(r);
 
+            // Function to apply theme based on active tab (must be defined before use)
+            function applyTabTheme() {
+                const activeTab = document.querySelector('.tab-content.active')?.id;
+                if (activeTab === 'creative-tab' || isRoute('/creative-ai')) {
+                    document.documentElement.setAttribute('data-theme', 'light');
+                } else {
+                    // Photoshoot tab - use dark mode (remove light mode)
+                    document.documentElement.removeAttribute('data-theme');
+                }
+            }
+
             // Tab switching
             document.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.addEventListener('click', function() {
@@ -1284,8 +1404,19 @@
                     document.getElementById(tab + '-tab').classList.add('active');
 
                     const generateBtnText = document.getElementById('generateBtnText');
-                    if (tab === 'photoshoot') generateBtnText.textContent = 'Start Product Shoot';
-                    else generateBtnText.textContent = 'Generate Creative Image';
+                    if (tab === 'photoshoot') {
+                        generateBtnText.textContent = 'Start Product Shoot';
+                    } else {
+                        generateBtnText.textContent = 'Generate Creative Image';
+                    }
+                    
+                    // Apply theme based on active tab
+                    applyTabTheme();
+                    
+                    // Re-apply theme multiple times to ensure it sticks
+                    setTimeout(() => applyTabTheme(), 50);
+                    setTimeout(() => applyTabTheme(), 200);
+                    setTimeout(() => applyTabTheme(), 500);
 
                     // reset preview
                     document.getElementById('previewArea').innerHTML = `
@@ -1294,6 +1425,63 @@
                     updateGenerateState();
                 });
             });
+
+            // Override theme initialization from app.blade.php for AI Studio pages
+            if (isRoute('/ai-photoshoot') || isRoute('/creative-ai')) {
+                // Wait for app.blade.php to initialize, then override
+                setTimeout(() => {
+                    applyTabTheme();
+                    
+                    // Re-apply theme periodically to prevent override
+                    setInterval(() => {
+                        applyTabTheme();
+                    }, 500);
+                }, 200);
+                
+                // Intercept theme toggle clicks with higher priority
+                document.addEventListener('click', function(e) {
+                    const themeLink = e.target.closest('.dropdown-item[data-theme]');
+                    if (themeLink) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        e.stopImmediatePropagation();
+                        
+                        // Immediately re-apply tab theme
+                        setTimeout(() => applyTabTheme(), 10);
+                        setTimeout(() => applyTabTheme(), 100);
+                        
+                        // Show message that theme is locked to tab
+                        const activeTab = document.querySelector('.tab-content.active')?.id;
+                        Toast.fire({
+                            icon: 'info',
+                            title: activeTab === 'creative-tab' 
+                                ? 'Creative AI uses light mode only' 
+                                : 'Photoshoot uses dark mode only',
+                            timer: 2000
+                        });
+                    }
+                }, true); // Use capture phase to intercept before other handlers
+                
+                // Also intercept any direct theme attribute changes via MutationObserver
+                const observer = new MutationObserver(function(mutations) {
+                    mutations.forEach(function(mutation) {
+                        if (mutation.type === 'attributes' && mutation.attributeName === 'data-theme') {
+                            // Small delay then re-apply tab theme
+                            setTimeout(() => applyTabTheme(), 50);
+                        }
+                    });
+                });
+                
+                observer.observe(document.documentElement, {
+                    attributes: true,
+                    attributeFilter: ['data-theme']
+                });
+            } else {
+                // For other pages, set initial theme
+                setTimeout(() => {
+                    applyTabTheme();
+                }, 100);
+            }
 
             document.querySelectorAll(".style-dropdown").forEach(drop => {
                 // Toggle this dropdown only
@@ -1637,8 +1825,8 @@
 
             let creativeData = {
                 uploadedImagePath: null,
-                selectedRatio: '1:1',
-                selectedFormat: 'JPEG'
+                selectedRatio: null,
+                selectedFormat: null
             };
             const creativePromptInput = document.getElementById('creative-promptInput');
 
@@ -1650,6 +1838,7 @@
                         .classList.remove('active'));
                     this.classList.add('active');
                     creativeData.selectedRatio = this.dataset.ratio;
+                    checkCreativeFormValid();
                 });
             });
             document.querySelectorAll('#creative-tab .format-option').forEach(option => {
@@ -1658,6 +1847,7 @@
                         .classList.remove('active'));
                     this.classList.add('active');
                     creativeData.selectedFormat = this.dataset.format;
+                    checkCreativeFormValid();
                 });
             });
 
@@ -1759,6 +1949,20 @@
                         });
                         return;
                     }
+                    if (!creativeData.selectedRatio) {
+                        Toast.fire({
+                            icon: 'warning',
+                            title: 'Please select an aspect ratio'
+                        });
+                        return;
+                    }
+                    if (!creativeData.selectedFormat) {
+                        Toast.fire({
+                            icon: 'warning',
+                            title: 'Please select an output format'
+                        });
+                        return;
+                    }
                     const payload = {
                         prompt: prompt,
                         uploaded_image: creativeData.uploadedImagePath,
@@ -1806,7 +2010,7 @@
                 const prompt = creativePromptInput.value.trim();
                 const btn = document.getElementById('photoshoot-generateBtn');
                 if (document.querySelector('.tab-content.active').id === 'creative-tab') {
-                    if (prompt.length >= 10) {
+                    if (prompt.length >= 10 && creativeData.selectedRatio && creativeData.selectedFormat) {
                         btn.disabled = false;
                         btn.classList.remove('creative-disabled');
                         btn.classList.add('creative-enabled');
@@ -1826,9 +2030,6 @@
                 if (activeTab === 'photoshoot') {
                     checkPhotoshootFormValid(); // KEEP THIS
 
-                    // ❌ REMOVE these lines because they override enabled state:
-                    // btn.classList.remove('creative-enabled');
-                    // btn.classList.remove('creative-disabled');
                 } else {
                     checkCreativeFormValid();
                 }
@@ -1856,6 +2057,48 @@
             }
             updateGenerateState();
         });
+
+        function displayResult(result, type) {
+
+            // REMOVE scanner animation when result comes
+            document.querySelector(".scanner-wrapper")?.remove();
+
+            const area = document.getElementById('previewArea');
+
+            const imageUrl = (result && result.generated_images && result.generated_images[0]) ?
+                result.generated_images[0] :
+                '/placeholder.jpg';
+
+            const id = result && result.id ? result.id : '0';
+
+            const downloadRoute = (type === 'photoshoot') ?
+                `/ai-photoshoot/download/${id}` :
+                `/creative-ai/download/${id}`;
+
+            area.innerHTML = `
+        <div class="preview-image-container">
+
+            <div class="preview-success-badge">
+                <i class="bi bi-check-circle-fill"></i> Image generated successfully!
+            </div>
+
+            <div class="preview-image">
+                <img src="${imageUrl}" alt="Generated Image">
+            </div>
+
+            <div class="preview-actions">
+                <button class="preview-btn btn-download"
+                    onclick="window.location.href='${downloadRoute}'">
+                    <i class="bi bi-download"></i> Download
+                </button>
+
+                <button class="preview-btn btn-share">
+                    <i class="bi bi-share"></i> Share
+                </button>
+            </div>
+        </div>
+    `;
+        }
     </script>
 
 @endsection
