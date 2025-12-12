@@ -9,8 +9,15 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use App\Models\User\CreativeAIGeneration;
+use App\Models\User\Industry;
+use App\Models\User\Category;
+use App\Models\User\ProductType;
 use App\Models\User\CreditTransaction;
 use Illuminate\Validation\ValidationException;
+
+use App\Models\User\Style;
+use App\Models\User\ModelDesign;
+use App\Models\User\ShootType;
 
 class CreativeAIController extends Controller
 {
@@ -18,11 +25,86 @@ class CreativeAIController extends Controller
     const MAX_FILE_SIZE = 10485760;
     const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/jpg'];
 
+    // public function index()
+    // {
+    //     $user = Auth::user();
+    //     $isSubscribed = (bool) ($user->is_subscribed ?? false);
+
+    //     // Get all dynamic data from database
+    //     $modelDesigns = $this->getModelDesigns();
+    //     $industries = $this->getIndustries();
+    //     $categories = $this->getCategories();
+    //     $productTypes = $this->getProductTypes();
+    //     $shootTypes = $this->getShootTypes();
+
+    //     // Get previous generations
+    //     $previousGenerations = CreativeAIGeneration::where('user_id', Auth::id())
+    //         ->latest()
+    //         ->take(10)
+    //         ->get();
+
+    //     return view('user.ai_studio', compact(
+    //         'isSubscribed',
+    //         'modelDesigns',
+    //         'industries',
+    //         'categories',
+    //         'productTypes',
+    //         'shootTypes',
+    //         'previousGenerations'
+    //     ));
+    // }
+
     public function index()
     {
-        $modelDesigns = [['id' => 'classic_model_1', 'name' => 'Classic Model 1', 'thumbnail' => 'https://picsum.photos/id/237/200/300', 'category' => 'classic'], ['id' => 'classic_model_2', 'name' => 'Classic Model 2', 'thumbnail' => 'https://picsum.photos/seed/picsum/200/300', 'category' => 'classic'], ['id' => 'lifestyle_model_1', 'name' => 'Lifestyle Model 1', 'thumbnail' => 'https://picsum.photos/200/300?grayscale', 'category' => 'lifestyle'], ['id' => 'luxury_model_1', 'name' => 'Luxury Model 1', 'thumbnail' => 'https://picsum.photos/id/870/200/300?grayscale&blur=2', 'category' => 'luxury'], ['id' => 'outdoor_model_1', 'name' => 'Outdoor Model 1', 'thumbnail' => 'https://picsum.photos/seed/picsum/200/300', 'category' => 'outdoor']];
+        $industries = Industry::all();
 
-        return view('user.ai_studio', compact('modelDesigns'));
+        if ($industries->isEmpty()) {
+            return back()->with('error', 'No industries found. Please add industries first.');
+        }
+
+        $firstIndustry = $industries->first();
+
+        $categories = Category::where('industry_id', $firstIndustry->id)->get();
+
+        if ($categories->isEmpty()) {
+            return view('user.ai_studio', [
+                'industries' => $industries,
+                'categories' => collect([]),
+                'productTypes' => collect([]),
+                'modelDesigns' => collect([]),
+            ])->with('error', 'Please add categories for this industry.');
+        }
+
+        $firstCategory = $categories->first();
+
+        // FIXED: Remove industry_id from ProductType query
+        $productTypes = ProductType::where('category_id', $firstCategory->id)->get();
+
+        if ($productTypes->isEmpty()) {
+            return view('user.ai_studio', [
+                'industries' => $industries,
+                'categories' => $categories,
+                'productTypes' => collect([]),
+                'modelDesigns' => collect([]),
+            ])->with('error', 'Please add product types.');
+        }
+
+        $firstProductType = $productTypes->first();
+
+        // Fetch all active Model Designs
+        $modelDesigns = ModelDesign::active()->ordered()->get();
+
+        // Fetch all Shoot Types
+        try {
+            $shootTypes = ShootType::all();
+            if ($shootTypes->isEmpty()) {
+                $shootTypes = collect($this->getDefaultShootTypes());
+            }
+        } catch (\Exception $e) {
+            $shootTypes = collect($this->getDefaultShootTypes());
+        }
+
+        return view('user.ai_studio', compact('industries', 'categories', 'productTypes', 'modelDesigns', 'shootTypes'));
     }
 
     public function uploadImage(Request $request)
@@ -301,5 +383,178 @@ class CreativeAIController extends Controller
             Log::error('History error: ' . $e->getMessage());
             return response()->json(['success' => false, 'message' => 'Failed to load history'], 500);
         }
+    }
+
+    // ========== Dynamic Data Fetching Methods ==========
+
+    // private function getModelDesigns()
+    // {
+    //     try {
+    //         $designs = ModelDesign::active()->ordered()->get();
+
+    //         if ($designs->isEmpty()) {
+    //             return $this->getDefaultModelDesigns();
+    //         }
+
+    //         return $designs->map(function ($design) {
+    //             return [
+    //                 'id' => (string) $design->id,
+    //                 'name' => $design->name,
+    //                 'thumbnail' => asset($design->thumbnail),
+    //                 'category' => $design->category,
+    //                 'description' => $design->description ?? '',
+    //             ];
+    //         })->toArray();
+    //     } catch (\Exception $e) {
+    //         return $this->getDefaultModelDesigns();
+    //     }
+    // }
+
+    private function getDefaultModelDesigns()
+    {
+        return [
+            ['id' => 'classic_model_1', 'name' => 'Classic Model 1', 'thumbnail' => 'https://picsum.photos/id/237/200/300', 'category' => 'classic', 'description' => 'Professional studio setup'],
+            ['id' => 'classic_model_2', 'name' => 'Classic Model 2', 'thumbnail' => 'https://picsum.photos/seed/classic2/200/300', 'category' => 'classic', 'description' => 'Elegant pose'],
+            ['id' => 'lifestyle_model_1', 'name' => 'Lifestyle Model 1', 'thumbnail' => 'https://picsum.photos/200/300?grayscale', 'category' => 'lifestyle', 'description' => 'Natural setting'],
+            ['id' => 'lifestyle_model_2', 'name' => 'Lifestyle Model 2', 'thumbnail' => 'https://picsum.photos/200/300/?blur', 'category' => 'lifestyle', 'description' => 'Candid moment'],
+            ['id' => 'luxury_model_1', 'name' => 'Luxury Model 1', 'thumbnail' => 'https://picsum.photos/id/870/200/300', 'category' => 'luxury', 'description' => 'High-end premium look'],
+            ['id' => 'outdoor_model_1', 'name' => 'Outdoor Model 1', 'thumbnail' => 'https://picsum.photos/seed/outdoor1/200/300', 'category' => 'outdoor', 'description' => 'Natural outdoor environment'],
+        ];
+    }
+
+    private function getIndustries()
+    {
+        try {
+            $industries = Style::active()->byType('industry')->ordered()->get();
+
+            if ($industries->isEmpty()) {
+                return $this->getDefaultIndustries();
+            }
+
+            return $industries
+                ->map(function ($style) {
+                    return [
+                        'value' => $style->value,
+                        'name' => $style->name,
+                        'image' => $style->image_path ? asset($style->image_path) : null,
+                    ];
+                })
+                ->toArray();
+        } catch (\Exception $e) {
+            return $this->getDefaultIndustries();
+        }
+    }
+
+    private function getDefaultIndustries()
+    {
+        return [['value' => 'jewellery', 'name' => 'Jewellery', 'image' => null], ['value' => 'fashion', 'name' => 'Fashion', 'image' => null], ['value' => 'accessories', 'name' => 'Accessories', 'image' => null]];
+    }
+
+    // private function getCategories()
+    // {
+    //     try {
+    //         $categories = Style::active()->byType('category')->ordered()->get();
+
+    //         if ($categories->isEmpty()) {
+    //             return $this->getDefaultCategories();
+    //         }
+
+    //         return $categories->map(function ($style) {
+    //             return [
+    //                 'value' => $style->value,
+    //                 'name' => $style->name,
+    //                 'image' => $style->image_path ? asset($style->image_path) : null,
+    //                 'parent_id' => $style->parent_id,
+    //             ];
+    //         })->toArray();
+    //     } catch (\Exception $e) {
+    //         return $this->getDefaultCategories();
+    //     }
+    // }
+
+    private function getDefaultCategories()
+    {
+        return [['value' => 'women_jewellery', 'name' => 'Women Jewellery', 'image' => null, 'parent_id' => null], ['value' => 'men_jewellery', 'name' => 'Men Jewellery', 'image' => null, 'parent_id' => null], ['value' => 'kids_jewellery', 'name' => 'Kids Jewellery', 'image' => null, 'parent_id' => null]];
+    }
+
+    private function getProductTypes()
+    {
+        try {
+            $productTypes = Style::active()->byType('product_type')->ordered()->get();
+
+            if ($productTypes->isEmpty()) {
+                return $this->getDefaultProductTypes();
+            }
+
+            return $productTypes
+                ->map(function ($style) {
+                    return [
+                        'value' => $style->value,
+                        'name' => $style->name,
+                        'image' => $style->image_path ? asset($style->image_path) : null,
+                        'parent_id' => $style->parent_id,
+                    ];
+                })
+                ->toArray();
+        } catch (\Exception $e) {
+            return $this->getDefaultProductTypes();
+        }
+    }
+
+    private function getDefaultProductTypes()
+    {
+        return [['value' => 'necklace', 'name' => 'Necklace', 'image' => null, 'parent_id' => null], ['value' => 'earrings', 'name' => 'Earrings', 'image' => null, 'parent_id' => null], ['value' => 'ring', 'name' => 'Ring', 'image' => null, 'parent_id' => null], ['value' => 'bracelet', 'name' => 'Bracelet', 'image' => null, 'parent_id' => null], ['value' => 'pendant', 'name' => 'Pendant', 'image' => null, 'parent_id' => null], ['value' => 'mangalsutra', 'name' => 'Mangalsutra', 'image' => null, 'parent_id' => null]];
+    }
+
+    private function getShootTypes()
+    {
+        try {
+            $shootTypes = Style::active()->byType('shoot_type')->ordered()->get();
+
+            if ($shootTypes->isEmpty()) {
+                return $this->getDefaultShootTypes();
+            }
+
+            return $shootTypes
+                ->map(function ($style) {
+                    return [
+                        'value' => $style->value,
+                        'name' => $style->name,
+                        'image' => $style->image_path ? asset($style->image_path) : null,
+                    ];
+                })
+                ->toArray();
+        } catch (\Exception $e) {
+            return $this->getDefaultShootTypes();
+        }
+    }
+
+    private function getDefaultShootTypes()
+    {
+        return [['value' => 'classic', 'name' => 'Classic', 'image' => null], ['value' => 'lifestyle', 'name' => 'Lifestyle', 'image' => null], ['value' => 'luxury', 'name' => 'Luxury', 'image' => null], ['value' => 'outdoor', 'name' => 'Outdoor', 'image' => null]];
+    }
+    public function getCategories(Request $req)
+    {
+        $data = Category::where('industry_id', $req->industry_id)->get();
+        return response()->json(['categories' => $data]);
+    }
+
+    public function getProducts(Request $req)
+    {
+        $data = ProductType::where('category_id', $req->category_id)->get();
+
+        return response()->json(['products' => $data]);
+    }
+
+    public function getModelDesigns(Request $req)
+    {
+        $designs = ModelDesign::where([
+            'industry_id' => $req->industry_id,
+            'category_id' => $req->category_id,
+            'product_type_id' => $req->product_type_id,
+            'shoot_type_id' => $req->shoot_type_id,
+        ])->get();
+
+        return response()->json(['modelDesigns' => $designs]);
     }
 }

@@ -74,8 +74,6 @@ Route::middleware('auth')->group(function () {
             Route::delete('/{id}', [App\Http\Controllers\User\AIPhotoShootController::class, 'destroy'])->name('destroy');
         });
 
-
-
     // Creative AI Routes
     Route::prefix('creative-ai')
         ->name('creative.ai.')
@@ -87,5 +85,12 @@ Route::middleware('auth')->group(function () {
             Route::get('/download/{id}', [App\Http\Controllers\User\CreativeAIController::class, 'downloadImage'])->name('download');
             Route::delete('/{id}', [App\Http\Controllers\User\CreativeAIController::class, 'destroy'])->name('destroy');
             Route::get('/history', [App\Http\Controllers\User\CreativeAIController::class, 'history'])->name('history');
+            Route::get('/get-categories', [App\Http\Controllers\User\CreativeAIController::class, 'getCategories'])->name('get.categories');
+            Route::get('/get-products', [App\Http\Controllers\User\CreativeAIController::class, 'getProducts'])->name('get.products');
+            Route::get('/get-model-designs', [App\Http\Controllers\User\CreativeAIController::class, 'getModelDesigns'])->name('get.model.designs');
         });
+
+    Route::get('/ai-studio', [App\Http\Controllers\User\CreativeAIController::class, 'index']);
+
+
 });

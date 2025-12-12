@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\User;
 
 use App\Models\User\AIPhotoShoot;
+use App\Models\User\ModelDesign;
+use App\Models\User\Style;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -16,20 +18,64 @@ class AIPhotoShootController extends Controller
         $userId = Auth::id();
         $user = Auth::user();
 
-        $isSubscribed = strtolower($user->is_subscribed ?? 'false') === 'true';
+        $isSubscribed = (bool) ($user->is_subscribed ?? false);
 
         $previousShoots = AIPhotoShoot::forUser($userId)->latest()->take(10)->get();
 
+        // Get model designs from database
         $modelDesigns = $this->getModelDesigns();
 
-        return view('user.ai_studio', compact('isSubscribed', 'previousShoots', 'modelDesigns'));
+        // Get styles (industries, categories, product types, shoot types) from database
+        $industries = $this->getIndustries();
+        $categories = $this->getCategories();
+        $productTypes = $this->getProductTypes();
+        $shootTypes = $this->getShootTypes();
+
+        return view('user.ai_studio', compact(
+            'isSubscribed',
+            'previousShoots',
+            'modelDesigns',
+            'industries',
+            'categories',
+            'productTypes',
+            'shootTypes'
+        ));
     }
 
+    /**
+     * Get model designs from database
+     * Falls back to hardcoded data if table doesn't exist or is empty
+     */
     private function getModelDesigns()
     {
+        try {
+            $designs = ModelDesign::active()->ordered()->get();
+
+            if ($designs->isEmpty()) {
+                // Fallback to hardcoded data if table is empty
+                return $this->getDefaultModelDesigns();
+            }
+
+            return $designs->map(function ($design) {
+                return [
+                    'id' => (string) $design->id,
+                    'name' => $design->name,
+                    'thumbnail' => asset($design->thumbnail),
+                    'category' => $design->category,
+                ];
+            })->toArray();
+        } catch (\Exception $e) {
+            // If table doesn't exist, return default data
+            return $this->getDefaultModelDesigns();
+        }
+    }
+
+    /**
+     * Default hardcoded model designs (fallback)
+     */
+    private function getDefaultModelDesigns()
+    {
         return [
-            ['id' => 'classic_model_1', 'name' => 'Classic Model 1', 'thumbnail' => 'https://picsum.photos/id/237/200/300', 'category' => 'classic'],
-            ['id' => 'classic_model_2', 'name' => 'Classic Model 2', 'thumbnail' => 'https://picsum.photos/seed/picsum/200/300', 'category' => 'classic'],
             ['id' => 'classic_model_1', 'name' => 'Classic Model 1', 'thumbnail' => 'https://picsum.photos/id/237/200/300', 'category' => 'classic'],
             ['id' => 'classic_model_2', 'name' => 'Classic Model 2', 'thumbnail' => 'https://picsum.photos/seed/picsum/200/300', 'category' => 'classic'],
             ['id' => 'lifestyle_model_1', 'name' => 'Lifestyle Model 1', 'thumbnail' => 'https://picsum.photos/200/300?grayscale', 'category' => 'lifestyle'],
@@ -38,6 +84,156 @@ class AIPhotoShootController extends Controller
             ['id' => 'luxury_model_2', 'name' => 'Luxury Model 2', 'thumbnail' => 'https://picsum.photos/id/237/200/300', 'category' => 'luxury'],
             ['id' => 'outdoor_model_1', 'name' => 'Outdoor Model 1', 'thumbnail' => 'https://picsum.photos/seed/picsum/200/300', 'category' => 'outdoor'],
             ['id' => 'outdoor_model_2', 'name' => 'Outdoor Model 2', 'thumbnail' => 'https://picsum.photos/seed/picsum/200/300', 'category' => 'outdoor'],
+        ];
+    }
+
+    /**
+     * Get industries from database
+     */
+    private function getIndustries()
+    {
+        try {
+            $industries = Style::active()->byType('industry')->ordered()->get();
+
+            if ($industries->isEmpty()) {
+                return $this->getDefaultIndustries();
+            }
+
+            return $industries->map(function ($style) {
+                return [
+                    'value' => $style->value,
+                    'name' => $style->name,
+                    'image' => $style->image_path ? asset($style->image_path) : null,
+                ];
+            })->toArray();
+        } catch (\Exception $e) {
+            return $this->getDefaultIndustries();
+        }
+    }
+
+    /**
+     * Get categories from database
+     */
+    private function getCategories()
+    {
+        try {
+            $categories = Style::active()->byType('category')->ordered()->get();
+
+            if ($categories->isEmpty()) {
+                return $this->getDefaultCategories();
+            }
+
+            return $categories->map(function ($style) {
+                return [
+                    'value' => $style->value,
+                    'name' => $style->name,
+                    'image' => $style->image_path ? asset($style->image_path) : null,
+                    'parent_id' => $style->parent_id,
+                ];
+            })->toArray();
+        } catch (\Exception $e) {
+            return $this->getDefaultCategories();
+        }
+    }
+
+    /**
+     * Get product types from database
+     */
+    private function getProductTypes()
+    {
+        try {
+            $productTypes = Style::active()->byType('product_type')->ordered()->get();
+
+            if ($productTypes->isEmpty()) {
+                return $this->getDefaultProductTypes();
+            }
+
+            return $productTypes->map(function ($style) {
+                return [
+                    'value' => $style->value,
+                    'name' => $style->name,
+                    'image' => $style->image_path ? asset($style->image_path) : null,
+                    'parent_id' => $style->parent_id,
+                ];
+            })->toArray();
+        } catch (\Exception $e) {
+            return $this->getDefaultProductTypes();
+        }
+    }
+
+    /**
+     * Default industries (fallback)
+     */
+    private function getDefaultIndustries()
+    {
+        return [
+            ['value' => 'Jewellery', 'name' => 'Jewellery', 'image' => null],
+            ['value' => 'Fashion', 'name' => 'Fashion', 'image' => null],
+            ['value' => 'Accessories', 'name' => 'Accessories', 'image' => null],
+        ];
+    }
+
+    /**
+     * Default categories (fallback)
+     */
+    private function getDefaultCategories()
+    {
+        return [
+            ['value' => 'Women Jewellery', 'name' => 'Women Jewellery', 'image' => null, 'parent_id' => null],
+            ['value' => 'Men Jewellery', 'name' => 'Men Jewellery', 'image' => null, 'parent_id' => null],
+            ['value' => 'Kids Jewellery', 'name' => 'Kids Jewellery', 'image' => null, 'parent_id' => null],
+        ];
+    }
+
+    /**
+     * Default product types (fallback)
+     */
+    private function getDefaultProductTypes()
+    {
+        return [
+            ['value' => 'Necklace', 'name' => 'Necklace', 'image' => null, 'parent_id' => null],
+            ['value' => 'Earrings', 'name' => 'Earrings', 'image' => null, 'parent_id' => null],
+            ['value' => 'Ring', 'name' => 'Ring', 'image' => null, 'parent_id' => null],
+            ['value' => 'Bracelet', 'name' => 'Bracelet', 'image' => null, 'parent_id' => null],
+            ['value' => 'Pendant', 'name' => 'Pendant', 'image' => null, 'parent_id' => null],
+            ['value' => 'Mangalsutra', 'name' => 'Mangalsutra', 'image' => null, 'parent_id' => null],
+        ];
+    }
+
+    /**
+     * Get shoot types from database
+     */
+    private function getShootTypes()
+    {
+        try {
+            $shootTypes = Style::active()->byType('shoot_type')->ordered()->get();
+
+            if ($shootTypes->isEmpty()) {
+                return $this->getDefaultShootTypes();
+            }
+
+            return $shootTypes->map(function ($style) {
+                return [
+                    'value' => $style->value,
+                    'name' => $style->name,
+                    'image' => $style->image_path ? asset($style->image_path) : null,
+                ];
+            })->toArray();
+        } catch (\Exception $e) {
+            return $this->getDefaultShootTypes();
+        }
+    }
+
+    /**
+     * Default shoot types (fallback)
+     */
+    private function getDefaultShootTypes()
+    {
+        return [
+            ['value' => 'classic', 'name' => 'Classic', 'image' => null],
+            ['value' => 'lifestyle', 'name' => 'Lifestyle', 'image' => null],
+            ['value' => 'luxury', 'name' => 'Luxury', 'image' => null],
+            ['value' => 'outdoor', 'name' => 'Outdoor', 'image' => null],
         ];
     }
 
