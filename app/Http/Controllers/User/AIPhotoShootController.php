@@ -46,29 +46,31 @@ class AIPhotoShootController extends Controller
      * Get model designs from database
      * Falls back to hardcoded data if table doesn't exist or is empty
      */
-    private function getModelDesigns()
-    {
-        try {
-            $designs = ModelDesign::active()->ordered()->get();
+public function getModelDesigns(Request $request)
+{
+    $designs = ModelDesign::with(['industry', 'category', 'productType', 'shootType'])
+        ->where('industry_id', $request->industry_id)
+        ->where('category_id', $request->category_id)
+        ->where('product_type_id', $request->product_type_id)
+        ->where('shoot_type_id', $request->shoot_type_id)
+        ->get();
 
-            if ($designs->isEmpty()) {
-                // Fallback to hardcoded data if table is empty
-                return $this->getDefaultModelDesigns();
-            }
+    return response()->json([
+        'modelDesigns' => $designs->map(function ($d) {
+            return [
+                'id' => $d->id,
+                'thumbnail' => $d->image ?? 'default.png',
 
-            return $designs->map(function ($design) {
-                return [
-                    'id' => (string) $design->id,
-                    'name' => $design->name,
-                    'thumbnail' => asset($design->thumbnail),
-                    'category' => $design->category,
-                ];
-            })->toArray();
-        } catch (\Exception $e) {
-            // If table doesn't exist, return default data
-            return $this->getDefaultModelDesigns();
-        }
-    }
+                // 🔥 Important — include names so JS gets correct values
+                'industry_name'      => $d->industry->name ?? '',
+                'category_name'      => $d->category->name ?? '',
+                'product_type_name'  => $d->productType->name ?? '',
+                'shoot_type_name'    => $d->shootType->name ?? '',
+            ];
+        })
+    ]);
+}
+
 
     /**
      * Default hardcoded model designs (fallback)

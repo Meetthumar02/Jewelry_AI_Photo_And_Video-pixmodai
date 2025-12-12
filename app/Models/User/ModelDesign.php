@@ -11,14 +11,7 @@ class ModelDesign extends Model
 
     protected $table = 'model_designs';
 
-    protected $fillable = [
-        'name',
-        'thumbnail',
-        'category',
-        'description',
-        'is_active',
-        'sort_order',
-    ];
+    protected $fillable = ['name', 'image', 'category', 'description', 'is_active', 'sort_order', 'industry_id', 'category_id', 'product_type_id', 'shoot_type_id'];
 
     protected $casts = [
         'is_active' => 'boolean',
@@ -39,5 +32,23 @@ class ModelDesign extends Model
     {
         return $query->orderBy('sort_order')->orderBy('name');
     }
-}
+    public function industry()
+    {
+        return $this->belongsTo(Industry::class, 'industry_id');
+    }
 
+    public function category()
+    {
+        return $this->belongsTo(Category::class, 'category_id');
+    }
+
+    public function productType()
+    {
+        return $this->belongsTo(ProductType::class, 'product_type_id');
+    }
+
+    public function shootType()
+    {
+        return $this->belongsTo(ShootType::class, 'shoot_type_id');
+    }
+}

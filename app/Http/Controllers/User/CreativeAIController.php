@@ -555,6 +555,13 @@ class CreativeAIController extends Controller
             'shoot_type_id' => $req->shoot_type_id,
         ])->get();
 
+        $designs->transform(function ($design) {
+            if ($design->image) {
+                $design->image = asset($design->image);
+            }
+            return $design;
+        });
+
         return response()->json(['modelDesigns' => $designs]);
     }
 }
