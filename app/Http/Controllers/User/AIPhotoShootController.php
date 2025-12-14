@@ -13,7 +13,7 @@ use Illuminate\Support\Str;
 
 class AIPhotoShootController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $userId = Auth::id();
         $user = Auth::user();
@@ -22,10 +22,8 @@ class AIPhotoShootController extends Controller
 
         $previousShoots = AIPhotoShoot::forUser($userId)->latest()->take(10)->get();
 
-        // Get model designs from database
-        $modelDesigns = $this->getModelDesigns();
+        $modelDesigns = $this->getModelDesigns($request);
 
-        // Get styles (industries, categories, product types, shoot types) from database
         $industries = $this->getIndustries();
         $categories = $this->getCategories();
         $productTypes = $this->getProductTypes();
@@ -42,39 +40,31 @@ class AIPhotoShootController extends Controller
         ));
     }
 
-    /**
-     * Get model designs from database
-     * Falls back to hardcoded data if table doesn't exist or is empty
-     */
-public function getModelDesigns(Request $request)
-{
-    $designs = ModelDesign::with(['industry', 'category', 'productType', 'shootType'])
-        ->where('industry_id', $request->industry_id)
-        ->where('category_id', $request->category_id)
-        ->where('product_type_id', $request->product_type_id)
-        ->where('shoot_type_id', $request->shoot_type_id)
-        ->get();
+    public function getModelDesigns(Request $request)
+    {
+        $designs = ModelDesign::with(['industry', 'category', 'productType', 'shootType'])
+            ->where('industry_id', $request->industry_id)
+            ->where('category_id', $request->category_id)
+            ->where('product_type_id', $request->product_type_id)
+            ->where('shoot_type_id', $request->shoot_type_id)
+            ->get();
 
-    return response()->json([
-        'modelDesigns' => $designs->map(function ($d) {
-            return [
-                'id' => $d->id,
-                'thumbnail' => $d->image ?? 'default.png',
+        return response()->json([
+            'modelDesigns' => $designs->map(function ($d) {
+                return [
+                    'id' => $d->id,
+                    'thumbnail' => $d->image ?? 'default.png',
 
-                // 🔥 Important — include names so JS gets correct values
-                'industry_name'      => $d->industry->name ?? '',
-                'category_name'      => $d->category->name ?? '',
-                'product_type_name'  => $d->productType->name ?? '',
-                'shoot_type_name'    => $d->shootType->name ?? '',
-            ];
-        })
-    ]);
-}
+                    'industry_name' => $d->industry->name ?? '',
+                    'category_name' => $d->category->name ?? '',
+                    'product_type_name' => $d->productType->name ?? '',
+                    'shoot_type_name' => $d->shootType->name ?? '',
+                    'prompt' => $d->prompt ?? '',
+                ];
+            })
+        ]);
+    }
 
-
-    /**
-     * Default hardcoded model designs (fallback)
-     */
     private function getDefaultModelDesigns()
     {
         return [
@@ -89,9 +79,6 @@ public function getModelDesigns(Request $request)
         ];
     }
 
-    /**
-     * Get industries from database
-     */
     private function getIndustries()
     {
         try {
@@ -113,9 +100,6 @@ public function getModelDesigns(Request $request)
         }
     }
 
-    /**
-     * Get categories from database
-     */
     private function getCategories()
     {
         try {
@@ -138,9 +122,6 @@ public function getModelDesigns(Request $request)
         }
     }
 
-    /**
-     * Get product types from database
-     */
     private function getProductTypes()
     {
         try {
@@ -163,9 +144,6 @@ public function getModelDesigns(Request $request)
         }
     }
 
-    /**
-     * Default industries (fallback)
-     */
     private function getDefaultIndustries()
     {
         return [
@@ -175,9 +153,6 @@ public function getModelDesigns(Request $request)
         ];
     }
 
-    /**
-     * Default categories (fallback)
-     */
     private function getDefaultCategories()
     {
         return [
@@ -187,9 +162,6 @@ public function getModelDesigns(Request $request)
         ];
     }
 
-    /**
-     * Default product types (fallback)
-     */
     private function getDefaultProductTypes()
     {
         return [
@@ -202,9 +174,6 @@ public function getModelDesigns(Request $request)
         ];
     }
 
-    /**
-     * Get shoot types from database
-     */
     private function getShootTypes()
     {
         try {
@@ -226,9 +195,6 @@ public function getModelDesigns(Request $request)
         }
     }
 
-    /**
-     * Default shoot types (fallback)
-     */
     private function getDefaultShootTypes()
     {
         return [
@@ -302,6 +268,9 @@ public function getModelDesigns(Request $request)
             return response()->json(['success' => false, 'message' => 'Not enough credits'], 400);
         }
 
+        $modelDesign = ModelDesign::find($request->model_design_id);
+        $prompt = $modelDesign ? $modelDesign->prompt : '';
+
         $shoot = AIPhotoShoot::create([
             'user_id' => $user->id,
             'industry' => $request->industry,
@@ -314,12 +283,21 @@ public function getModelDesigns(Request $request)
             'output_format' => $request->output_format,
             'status' => 'processing',
             'credits_used' => $creditsNeeded,
+            'prompts_used' => [$prompt],
         ]);
 
         $user->decrement('total_credits', $creditsNeeded);
 
-        $this->generatePhotos($shoot);
+        $success = $this->generatePhotos($shoot);
         $shoot->refresh();
+
+        if (!$success) {
+            $user->increment('total_credits', $creditsNeeded);
+            return response()->json([
+                'success' => false,
+                'message' => 'Generation failed: ' . ($shoot->error_message ?? 'Unknown error')
+            ]);
+        }
 
         return response()->json(['success' => true, 'shoot' => $shoot]);
     }

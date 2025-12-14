@@ -1192,7 +1192,8 @@
                         <div class="step-title">2. Select Shoot Type</div>
                         <div class="shoot-type-row">
                             @foreach ($shootTypes as $type)
-                                <div class="shoot-type-pill {{ $loop->first ? 'active' : '' }}" data-type="{{ $type->id }}">
+                                <div class="shoot-type-pill {{ $loop->first ? 'active' : '' }}"
+                                    data-type="{{ $type->id }}">
                                     {{ $type->name }}
                                 </div>
                             @endforeach
@@ -1335,7 +1336,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             // Shared constants + helpers
             const Toast = Swal.mixin({
                 toast: true,
@@ -1359,7 +1360,7 @@
 
             // Tab switching
             document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.addEventListener('click', function () {
+                btn.addEventListener('click', function() {
                     const tab = this.dataset.tab;
                     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove(
                         'active'));
@@ -1385,8 +1386,8 @@
 
                     // reset preview
                     document.getElementById('previewArea').innerHTML = `
-                                                                            <div class="preview-empty"><i class="bi bi-image"></i><h6>Your AI-generated image will appear here.</h6></div>
-                                                                          `;
+                                                                                                        <div class="preview-empty"><i class="bi bi-image"></i><h6>Your AI-generated image will appear here.</h6></div>
+                                                                                                      `;
                     updateGenerateState();
                 });
             });
@@ -1404,7 +1405,7 @@
                 }, 200);
 
                 // Intercept theme toggle clicks with higher priority
-                document.addEventListener('click', function (e) {
+                document.addEventListener('click', function(e) {
                     const themeLink = e.target.closest('.dropdown-item[data-theme]');
                     if (themeLink) {
                         e.preventDefault();
@@ -1428,8 +1429,8 @@
                 }, true); // Use capture phase to intercept before other handlers
 
                 // Also intercept any direct theme attribute changes via MutationObserver
-                const observer = new MutationObserver(function (mutations) {
-                    mutations.forEach(function (mutation) {
+                const observer = new MutationObserver(function(mutations) {
+                    mutations.forEach(function(mutation) {
                         if (mutation.type === 'attributes' && mutation.attributeName ===
                             'data-theme') {
                             // Small delay then re-apply tab theme
@@ -1451,7 +1452,7 @@
 
             document.querySelectorAll(".style-dropdown").forEach(drop => {
                 // Toggle this dropdown only
-                drop.addEventListener("click", function (e) {
+                drop.addEventListener("click", function(e) {
                     e.stopPropagation();
 
                     // Close others
@@ -1465,14 +1466,14 @@
 
                 // Handle item click - attached to existing static items, but new dynamic ones need listener attached on creation
                 drop.querySelectorAll(".dropdown-item").forEach(item => {
-                    item.addEventListener("click", function (e) {
+                    item.addEventListener("click", function(e) {
                         handleDropdownClick(e, this);
                     });
                 });
             });
 
             // Clicking anywhere outside closes all dropdowns
-            document.addEventListener("click", function () {
+            document.addEventListener("click", function() {
                 document.querySelectorAll(".style-dropdown").forEach(d => d.classList.remove("open"));
             });
 
@@ -1535,11 +1536,11 @@
                 if (!photoshootData.selectedIndustry || !photoshootData.selectedCategory || !photoshootData
                     .selectedProduct) {
                     area.innerHTML = `
-                                            <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;padding:40px;text-align:center;">
-                                                <i class="bi bi-cursor" style="font-size:48px;color:#6b7280;margin-bottom:16px;"></i>
-                                                <div style="color:#9ca3af;font-size:14px;font-weight:500;">Select a Style Above</div>
-                                            </div>
-                                        `;
+                                                                        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;padding:40px;text-align:center;">
+                                                                            <i class="bi bi-cursor" style="font-size:48px;color:#6b7280;margin-bottom:16px;"></i>
+                                                                            <div style="color:#9ca3af;font-size:14px;font-weight:500;">Select a Style Above</div>
+                                                                        </div>
+                                                                    `;
                     return;
                 }
 
@@ -1561,11 +1562,11 @@
 
                         if (designs.length === 0) {
                             area.innerHTML = `
-                                                    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;padding:40px;text-align:center;">
-                                                        <i class="bi bi-inbox" style="font-size:48px;color:#6b7280;margin-bottom:16px;"></i>
-                                                        <div style="color:#9ca3af;font-size:14px;font-weight:500;">No designs found for this combination</div>
-                                                    </div>
-                                                `;
+                                                                                <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;padding:40px;text-align:center;">
+                                                                                    <i class="bi bi-inbox" style="font-size:48px;color:#6b7280;margin-bottom:16px;"></i>
+                                                                                    <div style="color:#9ca3af;font-size:14px;font-weight:500;">No designs found for this combination</div>
+                                                                                </div>
+                                                                            `;
                             return;
                         }
 
@@ -1573,297 +1574,366 @@
                             const card = document.createElement('div');
                             card.className = 'model-card';
                             card.dataset.modelId = model.id;
+                            card.dataset.prompt = model.prompt || ''; // Store prompt
                             // Ensure thumbnail URL is valid
                             // Use original image
-                                const imageUrl = model.image;
-                                card.innerHTML = `<img src="${imageUrl}" alt="${model.name}">`;
+                            const imageUrl = model.image;
+                            card.innerHTML = `<img src="${imageUrl}" alt="${model.name}">`;
 
-                                card.addEventListener('click', function() {
-                                    document.querySelectorAll(
-                                            '#photoshoot-modelDesignsArea .model-card')
-                                        .forEach(c => c.classList.remove('selected'));
-                                    this.classList.add('selected');
-                                    photoshootData.selectedModelDesign = model.id;
-                                    checkPhotoshootFormValid();
-                                });
-
-                                area.appendChild(card);
-
-                                // Auto-select first if none selected
-                                if (idx === 0 && !photoshootData.selectedModelDesign) {
-                                    card.classList.add('selected');
-                                    photoshootData.selectedModelDesign = model.id;
-                                }
-                            });
-                            checkPhotoshootFormValid();
-                        })
-                        .catch(err => {
-                            console.error(err);
-                            area.innerHTML = `
-                                                <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;padding:40px;text-align:center;">
-                                                    <i class="bi bi-exclamation-circle" style="font-size:48px;color:#ef4444;margin-bottom:16px;"></i>
-                                                    <div style="color:#ef4444;font-size:14px;font-weight:500;">Unable to load designs</div>
-                                                    <div style="color:#9ca3af;font-size:12px;margin-top:8px;">Please try again</div>
-                                                </div>
-                                            `;
-                        });
-                }
-
-                function fetchCategories(industryValue) {
-                    fetch(`{{ route('creative.ai.get.categories') }}?industry_id=${industryValue}`)
-                        .then(r => r.json())
-                        .then(data => {
-                            const dropdown = document.querySelector('#categoryDropdown .dropdown-menu');
-                            const selectedSpan = document.querySelector(
-                                '#categoryDropdown .dropdown-selected span');
-
-                            dropdown.innerHTML = '';
-                            // Reset category selection
-                            selectedSpan.innerText = '-- Select Category --';
-                            photoshootData.selectedCategory = null;
-
-                            // Also reset product dropdown
-                            document.querySelector('#productDropdown .dropdown-selected span').innerText =
-                                '-- Select Product Type --';
-                            document.querySelector('#productDropdown .dropdown-menu').innerHTML = '';
-                            photoshootData.selectedProduct = null;
-
-                            if (data.categories && data.categories.length > 0) {
-                                data.categories.forEach(cat => {
-                                    const div = document.createElement('div');
-                                    div.className = 'dropdown-item';
-                                    div.dataset.value = cat.id;
-                                    div.innerHTML = `
-                                                        <img src="/assets/upload/catlog_studion_image/model_1279825432.png" class="opt-img">
-                                                        ${cat.name}
-                                                    `;
-                                    div.addEventListener('click', function(e) {
-                                        handleDropdownClick(e, this);
-                                    });
-                                    dropdown.appendChild(div);
-                                });
-                            } else {
-                                selectedSpan.innerText = 'No Categories';
-                            }
-
-                            // Update model designs to show "Select a Style Above"
-                            loadModelDesigns();
-                        });
-                }
-
-                function fetchProductTypes(categoryValue) {
-                    if (!categoryValue) {
-                        // Clear products
-                        const dropdown = document.querySelector('#productDropdown .dropdown-menu');
-                        document.querySelector('#productDropdown .dropdown-selected span').innerText =
-                            'Select Product Type';
-                        dropdown.innerHTML = '';
-                        photoshootData.selectedProduct = null;
-                        loadModelDesigns();
-                        return;
-                    }
-                    fetch(`{{ route('creative.ai.get.products') }}?category_id=${categoryValue}`)
-                        .then(r => r.json())
-                        .then(data => {
-                            const dropdown = document.querySelector('#productDropdown .dropdown-menu');
-                            const selectedSpan = document.querySelector('#productDropdown .dropdown-selected span');
-
-                            dropdown.innerHTML = '';
-                            // Reset product selection
-                            selectedSpan.innerText = '-- Select Product Type --';
-                            photoshootData.selectedProduct = null;
-
-                            if (data.products && data.products.length > 0) {
-                                data.products.forEach(prod => {
-                                    const div = document.createElement('div');
-                                    div.className = 'dropdown-item';
-                                    div.dataset.value = prod.id;
-                                    div.innerHTML = `
-                                                        <img src="/assets/upload/catlog_studion_image/model_1279825432.png" class="opt-img">
-                                                        ${prod.name}
-                                                    `;
-                                    div.addEventListener('click', function(e) {
-                                        handleDropdownClick(e, this);
-                                    });
-                                    dropdown.appendChild(div);
-                                });
-                            } else {
-                                selectedSpan.innerText = 'No Products';
-                            }
-
-                            // Update model designs to show "Select a Style Above"
-                            loadModelDesigns();
-                        });
-                }
-
-                // Centralized Dropdown Click Handler
-                function handleDropdownClick(e, item) {
-                    e.stopPropagation();
-                    const parent = item.closest(".style-dropdown");
-                    const value = item.dataset.value;
-                    const name = item.innerText.trim();
-                    const originalImg = item.querySelector("img").src;
-
-                    // UI Update
-                    parent.querySelector(".dropdown-selected span").innerText = name;
-                    parent.querySelector(".dropdown-selected img").src = originalImg;
-                    parent.querySelectorAll(".dropdown-item").forEach(i => i.classList.remove("active"));
-                    item.classList.add("active");
-                    parent.classList.remove("open");
-
-                    // Logic Update
-                    const id = parent.id;
-                    if (id === 'industryDropdown') {
-                        photoshootData.selectedIndustry = value;
-                        fetchCategories(value);
-                    } else if (id === 'categoryDropdown') {
-                        photoshootData.selectedCategory = value;
-                        fetchProductTypes(value);
-                    } else if (id === 'productDropdown') {
-                        photoshootData.selectedProduct = value;
-                        loadModelDesigns();
-                    }
-                }
-
-                // Initial Load - commented out to require user selection first
-                // loadModelDesigns();
-
-                // shoot type pills
-                document.querySelectorAll('#photoshoot-tab .shoot-type-pill').forEach(pill => {
-                    pill.addEventListener('click', function() {
-                        document.querySelectorAll('#photoshoot-tab .shoot-type-pill').forEach(p => p
-                            .classList.remove('active'));
-                        this.classList.add('active');
-                        photoshootData.selectedShootType = this.dataset.type;
-                        photoshootData.selectedModelDesign = null;
-                        loadModelDesigns();
-                        checkPhotoshootFormValid();
-                    });
-                });
-
-                // ratio / format selection (photoshoot)
-                document.querySelectorAll('#photoshoot-tab .ratio-option').forEach(option => {
-                    option.addEventListener('click', function() {
-                        document.querySelectorAll('#photoshoot-tab .ratio-option').forEach(o => o
-                            .classList.remove('active'));
-                        this.classList.add('active');
-                        photoshootData.selectedRatio = this.dataset.ratio;
-                    });
-                });
-                document.querySelectorAll('#photoshoot-tab .format-option').forEach(option => {
-                    option.addEventListener('click', function() {
-                        document.querySelectorAll('#photoshoot-tab .format-option').forEach(o => o
-                            .classList.remove('active'));
-                        this.classList.add('active');
-                        photoshootData.selectedFormat = this.dataset.format;
-                    });
-                });
-
-                // upload handlers (photoshoot)
-                document.getElementById('photoshoot-uploadArea').addEventListener('click', () => document
-                    .getElementById('photoshoot-imageInput').click());
-                document.getElementById('photoshoot-browseLink').addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    document.getElementById('photoshoot-imageInput').click();
-                });
-
-                document.getElementById('photoshoot-imageInput').addEventListener('change', function(e) {
-                    const file = e.target.files[0];
-                    if (!file) return;
-                    if (file.size > 10 * 1024 * 1024) {
-                        Toast.fire({
-                            icon: 'error',
-                            title: 'File size must be less than 10MB'
-                        });
-                        return;
-                    }
-                    const fd = new FormData();
-                    fd.append('image', file);
-                    Swal.fire({
-                        title: 'Uploading...',
-                        allowOutsideClick: false,
-                        didOpen: () => Swal.showLoading()
-                    });
-                    fetch('{{ route('ai.photoshoot.upload') }}', {
-                            method: 'POST',
-                            headers: {
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                            },
-                            body: fd
-                        })
-                        .then(r => r.json()).then(data => {
-                            Swal.close();
-                            if (data.success) {
-                                photoshootData.uploadedImagePath = data.path;
-                                const uploadArea = document.getElementById('photoshoot-uploadArea');
-                                uploadArea.classList.add('has-file');
-                                uploadArea.innerHTML =
-                                    `<img src="${data.url}" class="upload-preview-img" alt="Uploaded">`;
-                                Toast.fire({
-                                    icon: 'success',
-                                    title: 'Image uploaded!'
-                                });
+                            card.addEventListener('click', function() {
+                                document.querySelectorAll(
+                                        '#photoshoot-modelDesignsArea .model-card')
+                                    .forEach(c => c.classList.remove('selected'));
+                                this.classList.add('selected');
+                                photoshootData.selectedModelDesign = model.id;
+                                photoshootData.selectedPrompt = model.prompt ||
+                                    ''; // Store in data object
                                 checkPhotoshootFormValid();
-                            } else {
-                                Toast.fire({
-                                    icon: 'error',
-                                    title: data.message || 'Upload failed'
-                                });
+                                updatePreviewWithPrompt();
+                            });
+
+                            area.appendChild(card);
+
+                            // Auto-select first if none selected
+                            if (idx === 0 && !photoshootData.selectedModelDesign) {
+                                card.classList.add('selected');
+                                photoshootData.selectedModelDesign = model.id;
+                                photoshootData.selectedPrompt = model.prompt || ''; // Store initial
+                                updatePreviewWithPrompt();
                             }
-                        }).catch(err => {
-                            Swal.close();
-                            Toast.fire({
-                                icon: 'error',
-                                title: 'Upload failed'
-                            });
                         });
-                });
+                        checkPhotoshootFormValid();
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        area.innerHTML = `
+                                                                            <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;padding:40px;text-align:center;">
+                                                                                <i class="bi bi-exclamation-circle" style="font-size:48px;color:#ef4444;margin-bottom:16px;"></i>
+                                                                                <div style="color:#ef4444;font-size:14px;font-weight:500;">Unable to load designs</div>
+                                                                                <div style="color:#9ca3af;font-size:12px;margin-top:8px;">Please try again</div>
+                                                                            </div>
+                                                                        `;
+                    });
+            }
 
-                // photoshoot generate
-                document.getElementById('photoshoot-generateBtn').addEventListener('click', function() {
+            // New function to show prompt in preview area
+            window.updatePreviewWithPrompt = function() {
+                const previewArea = document.getElementById('previewArea');
+                const prompt = photoshootData.selectedPrompt || "Select a model to see the prompt.";
 
-                    const activeTab = document.querySelector('.tab-btn.active').dataset.tab;
+                previewArea.innerHTML = `
+                        <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; padding:40px; text-align:center;">
+                                <p style="margin-bottom:8px; color:#9ca3af; font-size:12px; text-transform:uppercase; letter-spacing:1px;">Selected Prompt</p>
+                                <div style="margin-bottom:30px; font-size:16px; color:#fff; font-weight:400; max-width:90%; line-height:1.5; font-style:italic;">
+                                "${prompt}"
+                            </div>
+                            <div style="margin-top:16px; color:#6b7280; font-size:12px;">Click 'Start Product Shoot' to generate</div>
+                        </div>
+                    `;
+            }
 
-                    /* --------------- PHOTOSHOOT ---------------- */
-                    if (activeTab === 'photoshoot') {
+            function fetchCategories(industryValue) {
+                fetch(`{{ route('creative.ai.get.categories') }}?industry_id=${industryValue}`)
+                    .then(r => r.json())
+                    .then(data => {
+                        const dropdown = document.querySelector('#categoryDropdown .dropdown-menu');
+                        const selectedSpan = document.querySelector(
+                            '#categoryDropdown .dropdown-selected span');
 
-                        if (!photoshootData.uploadedImagePath || !photoshootData.selectedModelDesign) {
-                            Toast.fire({
-                                icon: 'warning',
-                                title: 'Please complete all steps'
+                        dropdown.innerHTML = '';
+                        // Reset category selection
+                        selectedSpan.innerText = '-- Select Category --';
+                        photoshootData.selectedCategory = null;
+
+                        // Also reset product dropdown
+                        document.querySelector('#productDropdown .dropdown-selected span').innerText =
+                            '-- Select Product Type --';
+                        document.querySelector('#productDropdown .dropdown-menu').innerHTML = '';
+                        photoshootData.selectedProduct = null;
+
+                        if (data.categories && data.categories.length > 0) {
+                            data.categories.forEach(cat => {
+                                const div = document.createElement('div');
+                                div.className = 'dropdown-item';
+                                div.dataset.value = cat.id;
+                                div.innerHTML = `
+                                                                                    <img src="/assets/upload/catlog_studion_image/model_1279825432.png" class="opt-img">
+                                                                                    ${cat.name}
+                                                                                `;
+                                div.addEventListener('click', function(e) {
+                                    handleDropdownClick(e, this);
+                                });
+                                dropdown.appendChild(div);
                             });
-                            return;
+                        } else {
+                            selectedSpan.innerText = 'No Categories';
                         }
 
-                        const payload = {
-                            industry: document.getElementById('photoshoot-industry').value,
-                            category: document.getElementById('photoshoot-category').value,
-                            product_type: document.getElementById('photoshoot-productType').value,
-                            shoot_type: photoshootData.selectedShootType,
-                            model_design_id: photoshootData.selectedModelDesign,
-                            uploaded_image: photoshootData.uploadedImagePath,
-                            aspect_ratio: photoshootData.selectedRatio,
-                            output_format: photoshootData.selectedFormat
-                        };
+                        // Update model designs to show "Select a Style Above"
+                        loadModelDesigns();
+                    });
+            }
 
-                        Swal.fire({
-                            title: 'Generating...',
-                            html: 'Creating your perfect shot',
-                            allowOutsideClick: false,
-                            didOpen: () => Swal.showLoading()
+            function fetchProductTypes(categoryValue) {
+                if (!categoryValue) {
+                    // Clear products
+                    const dropdown = document.querySelector('#productDropdown .dropdown-menu');
+                    document.querySelector('#productDropdown .dropdown-selected span').innerText =
+                        'Select Product Type';
+                    dropdown.innerHTML = '';
+                    photoshootData.selectedProduct = null;
+                    loadModelDesigns();
+                    return;
+                }
+                fetch(`{{ route('creative.ai.get.products') }}?category_id=${categoryValue}`)
+                    .then(r => r.json())
+                    .then(data => {
+                        const dropdown = document.querySelector('#productDropdown .dropdown-menu');
+                        const selectedSpan = document.querySelector('#productDropdown .dropdown-selected span');
+
+                        dropdown.innerHTML = '';
+                        // Reset product selection
+                        selectedSpan.innerText = '-- Select Product Type --';
+                        photoshootData.selectedProduct = null;
+
+                        if (data.products && data.products.length > 0) {
+                            data.products.forEach(prod => {
+                                const div = document.createElement('div');
+                                div.className = 'dropdown-item';
+                                div.dataset.value = prod.id;
+                                div.innerHTML = `
+                                                                                    <img src="/assets/upload/catlog_studion_image/model_1279825432.png" class="opt-img">
+                                                                                    ${prod.name}
+                                                                                `;
+                                div.addEventListener('click', function(e) {
+                                    handleDropdownClick(e, this);
+                                });
+                                dropdown.appendChild(div);
+                            });
+                        } else {
+                            selectedSpan.innerText = 'No Products';
+                        }
+
+                        // Update model designs to show "Select a Style Above"
+                        loadModelDesigns();
+                    });
+            }
+
+            // Centralized Dropdown Click Handler
+            function handleDropdownClick(e, item) {
+                e.stopPropagation();
+                const parent = item.closest(".style-dropdown");
+                const value = item.dataset.value;
+                const name = item.innerText.trim();
+                const originalImg = item.querySelector("img").src;
+
+                // UI Update
+                parent.querySelector(".dropdown-selected span").innerText = name;
+                parent.querySelector(".dropdown-selected img").src = originalImg;
+                parent.querySelectorAll(".dropdown-item").forEach(i => i.classList.remove("active"));
+                item.classList.add("active");
+                parent.classList.remove("open");
+
+                // Logic Update
+                const id = parent.id;
+                if (id === 'industryDropdown') {
+                    photoshootData.selectedIndustry = value;
+                    fetchCategories(value);
+                } else if (id === 'categoryDropdown') {
+                    photoshootData.selectedCategory = value;
+                    fetchProductTypes(value);
+                } else if (id === 'productDropdown') {
+                    photoshootData.selectedProduct = value;
+                    loadModelDesigns();
+                }
+            }
+
+            // Initial Load - commented out to require user selection first
+            // loadModelDesigns();
+
+            // shoot type pills
+            document.querySelectorAll('#photoshoot-tab .shoot-type-pill').forEach(pill => {
+                pill.addEventListener('click', function() {
+                    document.querySelectorAll('#photoshoot-tab .shoot-type-pill').forEach(p => p
+                        .classList.remove('active'));
+                    this.classList.add('active');
+                    photoshootData.selectedShootType = this.dataset.type;
+                    photoshootData.selectedModelDesign = null;
+                    loadModelDesigns();
+                    checkPhotoshootFormValid();
+                });
+            });
+
+            // ratio / format selection (photoshoot)
+            document.querySelectorAll('#photoshoot-tab .ratio-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    document.querySelectorAll('#photoshoot-tab .ratio-option').forEach(o => o
+                        .classList.remove('active'));
+                    this.classList.add('active');
+                    photoshootData.selectedRatio = this.dataset.ratio;
+                });
+            });
+            document.querySelectorAll('#photoshoot-tab .format-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    document.querySelectorAll('#photoshoot-tab .format-option').forEach(o => o
+                        .classList.remove('active'));
+                    this.classList.add('active');
+                    photoshootData.selectedFormat = this.dataset.format;
+                });
+            });
+
+            // upload handlers (photoshoot)
+            document.getElementById('photoshoot-uploadArea').addEventListener('click', () => document
+                .getElementById('photoshoot-imageInput').click());
+            document.getElementById('photoshoot-browseLink').addEventListener('click', (e) => {
+                e.stopPropagation();
+                document.getElementById('photoshoot-imageInput').click();
+            });
+
+            document.getElementById('photoshoot-imageInput').addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                if (file.size > 10 * 1024 * 1024) {
+                    Toast.fire({
+                        icon: 'error',
+                        title: 'File size must be less than 10MB'
+                    });
+                    return;
+                }
+                const fd = new FormData();
+                fd.append('image', file);
+                Swal.fire({
+                    title: 'Uploading...',
+                    allowOutsideClick: false,
+                    didOpen: () => Swal.showLoading()
+                });
+                fetch('{{ route('ai.photoshoot.upload') }}', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: fd
+                    })
+                    .then(r => r.json()).then(data => {
+                        Swal.close();
+                        if (data.success) {
+                            photoshootData.uploadedImagePath = data.path;
+                            const uploadArea = document.getElementById('photoshoot-uploadArea');
+                            uploadArea.classList.add('has-file');
+                            uploadArea.innerHTML =
+                                `<img src="${data.url}" class="upload-preview-img" alt="Uploaded">`;
+                            Toast.fire({
+                                icon: 'success',
+                                title: 'Image uploaded!'
+                            });
+                            checkPhotoshootFormValid();
+                        } else {
+                            Toast.fire({
+                                icon: 'error',
+                                title: data.message || 'Upload failed'
+                            });
+                        }
+                    }).catch(err => {
+                        Swal.close();
+                        Toast.fire({
+                            icon: 'error',
+                            title: 'Upload failed'
                         });
+                    });
+            });
+
+            // photoshoot generate
+            document.getElementById('photoshoot-generateBtn').addEventListener('click', function() {
+
+                const activeTab = document.querySelector('.tab-btn.active').dataset.tab;
+
+                /* --------------- PHOTOSHOOT ---------------- */
+                if (activeTab === 'photoshoot') {
+
+                    if (!photoshootData.uploadedImagePath || !photoshootData.selectedModelDesign) {
+                        Toast.fire({
+                            icon: 'warning',
+                            title: 'Please complete all steps'
+                        });
+                        return;
+                    }
+
+                    const payload = {
+                        industry: document.getElementById('photoshoot-industry') ? document
+                            .getElementById('photoshoot-industry').value : photoshootData
+                            .selectedIndustry,
+                        category: document.getElementById('photoshoot-category') ? document
+                            .getElementById('photoshoot-category').value : photoshootData
+                            .selectedCategory,
+                        product_type: document.getElementById('photoshoot-productType') ? document
+                            .getElementById('photoshoot-productType').value : photoshootData
+                            .selectedProduct,
+                        shoot_type: photoshootData.selectedShootType,
+                        model_design_id: String(photoshootData.selectedModelDesign),
+                        uploaded_image: photoshootData.uploadedImagePath,
+                        aspect_ratio: photoshootData.selectedRatio,
+                        output_format: photoshootData.selectedFormat
+                    };
+
+                    // Construct Prompt for Display
+                    const indName = document.querySelector('#industryDropdown .dropdown-selected span')
+                        .innerText;
+                    const catName = document.querySelector('#categoryDropdown .dropdown-selected span')
+                        .innerText;
+                    const prodName = document.querySelector('#productDropdown .dropdown-selected span')
+                        .innerText;
+                    const shootName = document.querySelector('.shoot-type-pill.active').innerText;
+                    const modelImg = document.querySelector('.model-card.selected img');
+                    const modelName = modelImg ? modelImg.alt : 'Selected Model';
+
+                    const constructedPrompt =
+                        `Professional product shoot for ${prodName} (${indName} - ${catName}). Style: ${shootName}. Model: ${modelName}.`;
+
+                    // Use Database Prompt if available, otherwise fallback (though should verify logic)
+                    const displayPrompt = photoshootData.selectedPrompt || constructedPrompt;
+
+                    // Update Preview Area with Prompt and Loader
+                    const previewArea = document.getElementById('previewArea');
+                    previewArea.innerHTML = `
+                                            <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; padding:40px; text-align:center;">
+                                                 <p style="margin-bottom:8px; color:#9ca3af; font-size:12px; text-transform:uppercase; letter-spacing:1px;">Generating with Prompt</p>
+                                                 <div style="margin-bottom:30px; font-size:18px; color:#fff; font-weight:500; max-width:80%; line-height:1.5;">
+                                                    "${displayPrompt}"
+                                                </div>
+                                                <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem; color:#a855f7 !important;">
+                                                    <span class="visually-hidden">Loading...</span>
+                                                </div>
+                                                <div style="margin-top:16px; color:#9ca3af; font-size:14px;">Creating your perfect shot...</div>
+                                            </div>
+                                        `;
+
+                    performGeneration(payload);
+
+
+                    function performGeneration(payload) {
+                        // Removed blocking Swal.fire loading
 
                         fetch('{{ route('ai.photoshoot.start') }}', {
                                 method: 'POST',
                                 headers: {
                                     'Content-Type': 'application/json',
+                                    'Accept': 'application/json',
                                     'X-CSRF-TOKEN': '{{ csrf_token() }}'
                                 },
                                 body: JSON.stringify(payload)
                             })
-                            .then(r => r.json())
+                            .then(async r => {
+                                const contentType = r.headers.get("content-type");
+                                if (contentType && contentType.indexOf("application/json") !== -1) {
+                                    return r.json();
+                                } else {
+                                    // Not JSON (likely HTML error page)
+                                    const text = await r.text();
+                                    throw new Error("Server Error: " + (r.statusText ||
+                                        "Unknown Error") + "\n" + text.substring(0, 200));
+                                }
+                            })
                             .then(result => {
-                                Swal.close();
                                 if (result.success) {
                                     Toast.fire({
                                         icon: 'success',
@@ -1871,256 +1941,80 @@
                                     });
                                     displayResult(result.shoot, 'photoshoot');
                                 } else {
+                                    // Restore empty state or show error in preview
+                                    previewArea.innerHTML = `
+                                                            <div class="preview-empty">
+                                                                <i class="bi bi-exclamation-triangle" style="color:#ef4444; opacity:1;"></i>
+                                                                <h6 style="color:#ef4444;">Generation Failed</h6>
+                                                                <p>${result.message || 'Please try again'}</p>
+                                                            </div>
+                                                        `;
                                     Toast.fire({
                                         icon: 'error',
                                         title: result.message || 'Generation failed'
                                     });
                                 }
                             })
-                            .catch(() => {
-                                Swal.close();
-                                Toast.fire({
-                                    icon: 'error',
-                                    title: 'Generation failed'
-                                });
-                            });
-
-                        return;
-                    }
-
-                    /* --------------- CREATIVE ---------------- */
-                    if (activeTab === 'creative') {
-
-                        const prompt = creativePromptInput.value.trim();
-                        if (prompt.length < 10) {
-                            Toast.fire({
-                                icon: 'warning',
-                                title: 'Please enter a detailed prompt (min 10 chars)'
-                            });
-                            return;
-                        }
-
-                        const payload = {
-                            prompt: prompt,
-                            uploaded_image: creativeData.uploadedImagePath,
-                            aspect_ratio: creativeData.selectedRatio,
-                            output_format: creativeData.selectedFormat
-                        };
-
-                        Swal.fire({
-                            title: 'Generating Creative Image...',
-                            html: 'Please wait while AI creates your vision',
-                            allowOutsideClick: false,
-                            didOpen: () => Swal.showLoading()
-                        });
-
-                        fetch('{{ route('creative.ai.generate') }}', {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                                },
-                                body: JSON.stringify(payload)
-                            })
-                            .then(r => r.json())
-                            .then(result => {
-                                Swal.close();
-                                if (result.success) {
-                                    Toast.fire({
-                                        icon: 'success',
-                                        title: 'Image generated!'
-                                    });
-                                    displayResult(result.generation, 'creative');
-                                } else {
-                                    Toast.fire({
-                                        icon: 'error',
-                                        title: result.message || 'Generation failed'
-                                    });
+                            .catch((err) => {
+                                console.error("Generation Error:", err);
+                                let errorMsg = "A network error occurred.";
+                                if (err.message && err.message.includes("Server Error")) {
+                                    errorMsg = err.message; // Show the server error excerpt
                                 }
-                            })
-                            .catch(() => {
-                                Swal.close();
+
+                                previewArea.innerHTML = `
+                                                            <div class="preview-empty">
+                                                                <i class="bi bi-exclamation-triangle" style="color:#ef4444; opacity:1;"></i>
+                                                                <h6 style="color:#ef4444;">Generation Failed</h6>
+                                                                <p style="font-size:11px; max-width:90%;">${errorMsg.replace(/</g, "&lt;")}</p>
+                                                            </div>
+                                                        `;
                                 Toast.fire({
                                     icon: 'error',
                                     title: 'Generation failed'
                                 });
                             });
                     }
-                });
 
-
-                function checkPhotoshootFormValid() {
-                    const hasImage = !!photoshootData.uploadedImagePath ||
-                        document.getElementById('photoshoot-uploadArea').classList.contains('has-file');
-                    const hasModel = !!photoshootData.selectedModelDesign;
-                    document.getElementById('photoshoot-generateBtn').disabled = !(hasImage && hasModel);
+                    return;
                 }
 
-                document.getElementById('photoshoot-modelPrevBtn')?.addEventListener('click', () => document
-                    .getElementById('photoshoot-modelDesignsArea').scrollLeft -= 180);
-                document.getElementById('photoshoot-modelNextBtn')?.addEventListener('click', () => document
-                    .getElementById('photoshoot-modelDesignsArea').scrollLeft += 180);
+                /* --------------- CREATIVE ---------------- */
+                if (activeTab === 'creative') {
 
-                let creativeData = {
-                    uploadedImagePath: null,
-                    selectedRatio: null,
-                    selectedFormat: null
-                };
-                const creativePromptInput = document.getElementById('creative-promptInput');
-
-                creativePromptInput.addEventListener('input', checkCreativeFormValid);
-
-                document.querySelectorAll('#creative-tab .ratio-option').forEach(option => {
-                    option.addEventListener('click', function() {
-                        document.querySelectorAll('#creative-tab .ratio-option').forEach(o => o
-                            .classList.remove('active'));
-                        this.classList.add('active');
-                        creativeData.selectedRatio = this.dataset.ratio;
-                        checkCreativeFormValid();
-                    });
-                });
-                document.querySelectorAll('#creative-tab .format-option').forEach(option => {
-                    option.addEventListener('click', function() {
-                        document.querySelectorAll('#creative-tab .format-option').forEach(o => o
-                            .classList.remove('active'));
-                        this.classList.add('active');
-                        creativeData.selectedFormat = this.dataset.format;
-                        checkCreativeFormValid();
-                    });
-                });
-
-                document.getElementById('creative-uploadArea').addEventListener('click', () => document.getElementById(
-                    'creative-imageInput').click());
-                document.getElementById('creative-browseLink').addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    document.getElementById('creative-imageInput').click();
-                });
-
-                document.getElementById('creative-imageInput').addEventListener('change', function(e) {
-                    const file = e.target.files[0];
-                    if (!file) return;
-                    if (file.size > 10 * 1024 * 1024) {
+                    const prompt = creativePromptInput.value.trim();
+                    if (prompt.length < 10) {
                         Toast.fire({
-                            icon: 'error',
-                            title: 'File size must be less than 10MB'
+                            icon: 'warning',
+                            title: 'Please enter a detailed prompt (min 10 chars)'
                         });
                         return;
                     }
-                    const fd = new FormData();
-                    fd.append('image', file);
+
+                    const payload = {
+                        prompt: prompt,
+                        uploaded_image: creativeData.uploadedImagePath,
+                        aspect_ratio: creativeData.selectedRatio,
+                        output_format: creativeData.selectedFormat
+                    };
+
                     Swal.fire({
-                        title: 'Uploading...',
+                        title: 'Generating Creative Image...',
+                        html: 'Please wait while AI creates your vision',
                         allowOutsideClick: false,
                         didOpen: () => Swal.showLoading()
                     });
-                    fetch('{{ route('creative.ai.upload') }}', {
-                            method: 'POST',
-                            headers: {
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                            },
-                            body: fd
-                        })
-                        .then(r => r.json()).then(data => {
-                            Swal.close();
-                            if (data.success) {
-                                creativeData.uploadedImagePath = data.path;
-                                const uploadArea = document.getElementById('creative-uploadArea');
-                                uploadArea.classList.add('has-file');
-                                uploadArea.innerHTML =
-                                    `<img src="${data.url}" class="upload-preview-img" alt="Uploaded">`;
-                                Toast.fire({
-                                    icon: 'success',
-                                    title: 'Image uploaded!'
-                                });
-                                checkCreativeFormValid();
-                            } else {
-                                Toast.fire({
-                                    icon: 'error',
-                                    title: data.message || 'Upload failed'
-                                });
-                            }
-                        }).catch(() => {
-                            Swal.close();
-                            Toast.fire({
-                                icon: 'error',
-                                title: 'Upload failed'
-                            });
-                        });
-                });
 
-                document.getElementById('creative-copyPromptBtn').addEventListener('click', function() {
-                    const prompt = creativePromptInput.value;
-                    if (prompt) {
-                        navigator.clipboard.writeText(prompt);
-                        Toast.fire({
-                            icon: 'success',
-                            title: 'Prompt copied!'
-                        })
-                    }
-                });
-                document.getElementById('creative-enhanceBtn').addEventListener('click', function() {
-                    const cur = creativePromptInput.value.trim();
-                    if (!cur) {
-                        Toast.fire({
-                            icon: 'warning',
-                            title: 'Please enter a prompt first'
-                        });
-                        return;
-                    }
-                    creativePromptInput.value =
-                        `${cur}, ultra detailed, professional photography, high quality, 8k resolution, cinematic lighting`;
-                    Toast.fire({
-                        icon: 'success',
-                        title: 'Prompt enhanced!'
-                    });
-                    checkCreativeFormValid();
-                });
-
-                document.getElementById('photoshoot-generateBtn').addEventListener('click', function() {
-                    const activeTab = document.querySelector('.tab-content.active').id;
-                    if (activeTab === 'creative-tab') {
-                        const prompt = creativePromptInput.value.trim();
-                        if (!prompt || prompt.length < 10) {
-                            Toast.fire({
-                                icon: 'warning',
-                                title: 'Please enter a detailed prompt (min 10 characters)'
-                            });
-                            return;
-                        }
-                        if (!creativeData.selectedRatio) {
-                            Toast.fire({
-                                icon: 'warning',
-                                title: 'Please select an aspect ratio'
-                            });
-                            return;
-                        }
-                        if (!creativeData.selectedFormat) {
-                            Toast.fire({
-                                icon: 'warning',
-                                title: 'Please select an output format'
-                            });
-                            return;
-                        }
-                        const payload = {
-                            prompt: prompt,
-                            uploaded_image: creativeData.uploadedImagePath,
-                            aspect_ratio: creativeData.selectedRatio,
-                            output_format: creativeData.selectedFormat
-                        };
-                        Swal.fire({
-                            title: 'Generating Creative Image...',
-                            html: 'Please wait while AI creates your vision',
-                            allowOutsideClick: false,
-                            didOpen: () => Swal.showLoading()
-                        });
-                        fetch('{{ route('creative.ai.generate') }}', {
+                    fetch('{{ route('creative.ai.generate') }}', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
                                 'X-CSRF-TOKEN': '{{ csrf_token() }}'
                             },
                             body: JSON.stringify(payload)
-                        }).then(r => r.json()).then(result => {
+                        })
+                        .then(r => r.json())
+                        .then(result => {
                             Swal.close();
                             if (result.success) {
                                 Toast.fire({
@@ -2134,109 +2028,306 @@
                                     title: result.message || 'Generation failed'
                                 });
                             }
-                        }).catch(() => {
+                        })
+                        .catch(() => {
                             Swal.close();
                             Toast.fire({
                                 icon: 'error',
                                 title: 'Generation failed'
                             });
                         });
-                    }
-                });
-
-                function checkCreativeFormValid() {
-                    const prompt = creativePromptInput.value.trim();
-                    const btn = document.getElementById('photoshoot-generateBtn');
-                    if (document.querySelector('.tab-content.active').id === 'creative-tab') {
-                        if (prompt.length >= 10 && creativeData.selectedRatio && creativeData.selectedFormat) {
-                            btn.disabled = false;
-                            btn.classList.remove('creative-disabled');
-                            btn.classList.add('creative-enabled');
-                        } else {
-                            btn.disabled = true;
-                            btn.classList.remove('creative-enabled');
-                            btn.classList.add('creative-disabled');
-                        }
-                    }
                 }
-
-                // update generate button state when switching tabs or on changes
-                function updateGenerateState() {
-                    const activeTab = document.querySelector('.tab-content.active').id;
-                    const btn = document.getElementById('photoshoot-generateBtn');
-
-                    if (activeTab === 'photoshoot') {
-                        checkPhotoshootFormValid(); // KEEP THIS
-
-                    } else {
-                        checkCreativeFormValid();
-                    }
-                }
-
-
-                // common display result
-                function displayResult(result, type) {
-                    const area = document.getElementById('previewArea');
-                    const imageUrl = (result && result.generated_images && result.generated_images[0]) ? result
-                        .generated_images[0] : '/placeholder.jpg';
-                    const id = result && result.id ? result.id : '0';
-                    const downloadRoute = type === 'photoshoot' ? `/ai-photoshoot/download/${id}` :
-                        `/creative-ai/download/${id}`;
-                    area.innerHTML = `
-                                                                          <div class="preview-image-container">
-                                                                            <div class="preview-success-badge"><i class="bi bi-check-circle-fill"></i> Image generated successfully!</div>
-                                                                            <div class="preview-image"><img src="${imageUrl}" alt="Generated"></div>
-                                                                            <div class="preview-actions">
-                                                                              <button class="preview-btn btn-download" onclick="window.location.href='${downloadRoute}'"><i class="bi bi-download"></i> Download</button>
-                                                                              <button class="preview-btn btn-share"><i class="bi bi-share"></i> Share</button>
-                                                                            </div>
-                                                                          </div>
-                                                                        `;
-                }
-                updateGenerateState();
             });
 
-            function displayResult(result, type) {
 
-                // REMOVE scanner animation when result comes
-                document.querySelector(".scanner-wrapper")?.remove();
-
-                const area = document.getElementById('previewArea');
-
-                const imageUrl = (result && result.generated_images && result.generated_images[0]) ?
-                    result.generated_images[0] :
-                    '/placeholder.jpg';
-
-                const id = result && result.id ? result.id : '0';
-
-                const downloadRoute = (type === 'photoshoot') ?
-                    `/ai-photoshoot/download/${id}` :
-                    `/creative-ai/download/${id}`;
-
-                area.innerHTML = `
-                                                                            <div class="preview-image-container">
-
-                                                                                <div class="preview-success-badge">
-                                                                                    <i class="bi bi-check-circle-fill"></i> Image generated successfully!
-                                                                                </div>
-
-                                                                                <div class="preview-image">
-                                                                                    <img src="${imageUrl}" alt="Generated Image">
-                                                                                </div>
-
-                                                                                <div class="preview-actions">
-                                                                                    <button class="preview-btn btn-download"
-                                                                                        onclick="window.location.href='${downloadRoute}'">
-                                                                                        <i class="bi bi-download"></i> Download
-                                                                                    </button>
-
-                                                                                    <button class="preview-btn btn-share">
-                                                                                        <i class="bi bi-share"></i> Share
-                                                                                    </button>
-                                                                                </div>
-                                                                            </div>
-                                                                        `;
+            function checkPhotoshootFormValid() {
+                const hasImage = !!photoshootData.uploadedImagePath ||
+                    document.getElementById('photoshoot-uploadArea').classList.contains('has-file');
+                const hasModel = !!photoshootData.selectedModelDesign;
+                document.getElementById('photoshoot-generateBtn').disabled = !(hasImage && hasModel);
             }
-        </script>
+
+            document.getElementById('photoshoot-modelPrevBtn')?.addEventListener('click', () => document
+                .getElementById('photoshoot-modelDesignsArea').scrollLeft -= 180);
+            document.getElementById('photoshoot-modelNextBtn')?.addEventListener('click', () => document
+                .getElementById('photoshoot-modelDesignsArea').scrollLeft += 180);
+
+            let creativeData = {
+                uploadedImagePath: null,
+                selectedRatio: null,
+                selectedFormat: null
+            };
+            const creativePromptInput = document.getElementById('creative-promptInput');
+
+            creativePromptInput.addEventListener('input', checkCreativeFormValid);
+
+            document.querySelectorAll('#creative-tab .ratio-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    document.querySelectorAll('#creative-tab .ratio-option').forEach(o => o
+                        .classList.remove('active'));
+                    this.classList.add('active');
+                    creativeData.selectedRatio = this.dataset.ratio;
+                    checkCreativeFormValid();
+                });
+            });
+            document.querySelectorAll('#creative-tab .format-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    document.querySelectorAll('#creative-tab .format-option').forEach(o => o
+                        .classList.remove('active'));
+                    this.classList.add('active');
+                    creativeData.selectedFormat = this.dataset.format;
+                    checkCreativeFormValid();
+                });
+            });
+
+            document.getElementById('creative-uploadArea').addEventListener('click', () => document.getElementById(
+                'creative-imageInput').click());
+            document.getElementById('creative-browseLink').addEventListener('click', (e) => {
+                e.stopPropagation();
+                document.getElementById('creative-imageInput').click();
+            });
+
+            document.getElementById('creative-imageInput').addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                if (file.size > 10 * 1024 * 1024) {
+                    Toast.fire({
+                        icon: 'error',
+                        title: 'File size must be less than 10MB'
+                    });
+                    return;
+                }
+                const fd = new FormData();
+                fd.append('image', file);
+                Swal.fire({
+                    title: 'Uploading...',
+                    allowOutsideClick: false,
+                    didOpen: () => Swal.showLoading()
+                });
+                fetch('{{ route('creative.ai.upload') }}', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: fd
+                    })
+                    .then(r => r.json()).then(data => {
+                        Swal.close();
+                        if (data.success) {
+                            creativeData.uploadedImagePath = data.path;
+                            const uploadArea = document.getElementById('creative-uploadArea');
+                            uploadArea.classList.add('has-file');
+                            uploadArea.innerHTML =
+                                `<img src="${data.url}" class="upload-preview-img" alt="Uploaded">`;
+                            Toast.fire({
+                                icon: 'success',
+                                title: 'Image uploaded!'
+                            });
+                            checkCreativeFormValid();
+                        } else {
+                            Toast.fire({
+                                icon: 'error',
+                                title: data.message || 'Upload failed'
+                            });
+                        }
+                    }).catch(() => {
+                        Swal.close();
+                        Toast.fire({
+                            icon: 'error',
+                            title: 'Upload failed'
+                        });
+                    });
+            });
+
+            document.getElementById('creative-copyPromptBtn').addEventListener('click', function() {
+                const prompt = creativePromptInput.value;
+                if (prompt) {
+                    navigator.clipboard.writeText(prompt);
+                    Toast.fire({
+                        icon: 'success',
+                        title: 'Prompt copied!'
+                    })
+                }
+            });
+            document.getElementById('creative-enhanceBtn').addEventListener('click', function() {
+                const cur = creativePromptInput.value.trim();
+                if (!cur) {
+                    Toast.fire({
+                        icon: 'warning',
+                        title: 'Please enter a prompt first'
+                    });
+                    return;
+                }
+                creativePromptInput.value =
+                    `${cur}, ultra detailed, professional photography, high quality, 8k resolution, cinematic lighting`;
+                Toast.fire({
+                    icon: 'success',
+                    title: 'Prompt enhanced!'
+                });
+                checkCreativeFormValid();
+            });
+
+            document.getElementById('photoshoot-generateBtn').addEventListener('click', function() {
+                const activeTab = document.querySelector('.tab-content.active').id;
+                if (activeTab === 'creative-tab') {
+                    const prompt = creativePromptInput.value.trim();
+                    if (!prompt || prompt.length < 10) {
+                        Toast.fire({
+                            icon: 'warning',
+                            title: 'Please enter a detailed prompt (min 10 characters)'
+                        });
+                        return;
+                    }
+                    if (!creativeData.selectedRatio) {
+                        Toast.fire({
+                            icon: 'warning',
+                            title: 'Please select an aspect ratio'
+                        });
+                        return;
+                    }
+                    if (!creativeData.selectedFormat) {
+                        Toast.fire({
+                            icon: 'warning',
+                            title: 'Please select an output format'
+                        });
+                        return;
+                    }
+                    const payload = {
+                        prompt: prompt,
+                        uploaded_image: creativeData.uploadedImagePath,
+                        aspect_ratio: creativeData.selectedRatio,
+                        output_format: creativeData.selectedFormat
+                    };
+                    Swal.fire({
+                        title: 'Generating Creative Image...',
+                        html: 'Please wait while AI creates your vision',
+                        allowOutsideClick: false,
+                        didOpen: () => Swal.showLoading()
+                    });
+                    fetch('{{ route('creative.ai.generate') }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify(payload)
+                    }).then(r => r.json()).then(result => {
+                        Swal.close();
+                        if (result.success) {
+                            Toast.fire({
+                                icon: 'success',
+                                title: 'Image generated!'
+                            });
+                            displayResult(result.generation, 'creative');
+                        } else {
+                            Toast.fire({
+                                icon: 'error',
+                                title: result.message || 'Generation failed'
+                            });
+                        }
+                    }).catch(() => {
+                        Swal.close();
+                        Toast.fire({
+                            icon: 'error',
+                            title: 'Generation failed'
+                        });
+                    });
+                }
+            });
+
+            function checkCreativeFormValid() {
+                const prompt = creativePromptInput.value.trim();
+                const btn = document.getElementById('photoshoot-generateBtn');
+                if (document.querySelector('.tab-content.active').id === 'creative-tab') {
+                    if (prompt.length >= 10 && creativeData.selectedRatio && creativeData.selectedFormat) {
+                        btn.disabled = false;
+                        btn.classList.remove('creative-disabled');
+                        btn.classList.add('creative-enabled');
+                    } else {
+                        btn.disabled = true;
+                        btn.classList.remove('creative-enabled');
+                        btn.classList.add('creative-disabled');
+                    }
+                }
+            }
+
+            // update generate button state when switching tabs or on changes
+            function updateGenerateState() {
+                const activeTab = document.querySelector('.tab-content.active').id;
+                const btn = document.getElementById('photoshoot-generateBtn');
+
+                if (activeTab === 'photoshoot') {
+                    checkPhotoshootFormValid(); // KEEP THIS
+
+                } else {
+                    checkCreativeFormValid();
+                }
+            }
+
+
+            // common display result
+            function displayResult(result, type) {
+                const area = document.getElementById('previewArea');
+                const imageUrl = (result && result.generated_images && result.generated_images[0]) ? result
+                    .generated_images[0] : '/placeholder.jpg';
+                const id = result && result.id ? result.id : '0';
+                const downloadRoute = type === 'photoshoot' ? `/ai-photoshoot/download/${id}` :
+                    `/creative-ai/download/${id}`;
+                area.innerHTML = `
+                                                                                                      <div class="preview-image-container">
+                                                                                                        <div class="preview-success-badge"><i class="bi bi-check-circle-fill"></i> Image generated successfully!</div>
+                                                                                                        <div class="preview-image"><img src="${imageUrl}" alt="Generated"></div>
+                                                                                                        <div class="preview-actions">
+                                                                                                          <button class="preview-btn btn-download" onclick="window.location.href='${downloadRoute}'"><i class="bi bi-download"></i> Download</button>
+                                                                                                          <button class="preview-btn btn-share"><i class="bi bi-share"></i> Share</button>
+                                                                                                        </div>
+                                                                                                      </div>
+                                                                                                    `;
+            }
+            updateGenerateState();
+        });
+
+        function displayResult(result, type) {
+
+            // REMOVE scanner animation when result comes
+            document.querySelector(".scanner-wrapper")?.remove();
+
+            const area = document.getElementById('previewArea');
+
+            const imageUrl = (result && result.generated_images && result.generated_images[0]) ?
+                result.generated_images[0] :
+                '/placeholder.jpg';
+
+            const id = result && result.id ? result.id : '0';
+
+            const downloadRoute = (type === 'photoshoot') ?
+                `/ai-photoshoot/download/${id}` :
+                `/creative-ai/download/${id}`;
+
+            area.innerHTML = `
+                                                                                                        <div class="preview-image-container">
+
+                                                                                                            <div class="preview-success-badge">
+                                                                                                                <i class="bi bi-check-circle-fill"></i> Image generated successfully!
+                                                                                                            </div>
+
+                                                                                                            <div class="preview-image">
+                                                                                                                <img src="${imageUrl}" alt="Generated Image">
+                                                                                                            </div>
+
+                                                                                                            <div class="preview-actions">
+                                                                                                                <button class="preview-btn btn-download"
+                                                                                                                    onclick="window.location.href='${downloadRoute}'">
+                                                                                                                    <i class="bi bi-download"></i> Download
+                                                                                                                </button>
+
+                                                                                                                <button class="preview-btn btn-share">
+                                                                                                                    <i class="bi bi-share"></i> Share
+                                                                                                                </button>
+                                                                                                            </div>
+                                                                                                        </div>
+                                                                                                    `;
+        }
+    </script>
 
 @endsection
